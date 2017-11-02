@@ -80,6 +80,8 @@ class Deserializer implements JsonDeserializer<Expression> {
             return IsProcessor.INSTANCE;
         } else if (object.has("full_text")) { //$NON-NLS-1$
             return FullTextProcessor.INSTANCE;
+        } else if (object.has("in")) { //$NON-NLS-1$
+            return InProcessor.INSTANCE;
         } else {
             throw new NotImplementedException("No support for '" + object + "'.");
         }

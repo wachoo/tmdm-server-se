@@ -10,21 +10,46 @@
 
 package com.amalto.core.query.user;
 
+import java.util.List;
+
 import org.talend.mdm.commmon.metadata.Types;
 
-/**
- *
- */
 public class BooleanConstant implements ConstantExpression<Boolean> {
 
-    private final boolean value;
+    private final Boolean value;
 
-    public BooleanConstant(boolean value) {
-        this.value = value;
+    private List<Boolean> valueList;
+
+    public BooleanConstant(String value) {
+        assert value != null;
+        this.value = Boolean.valueOf(value);
+        this.valueList = null;
+    }
+
+    public BooleanConstant(List<Boolean> value) {
+        assert value != null;
+        this.valueList = value;
+        this.value = null;
     }
 
     public Boolean getValue() {
+        if (isExpressionList()) {
+            throw new IllegalStateException("The property of 'value' is not valid."); //$NON-NLS-1$
+        }
         return value;
+    }
+
+    @Override
+    public List<Boolean> getValueList() {
+        if (!isExpressionList()) {
+            throw new IllegalStateException("The property of 'valueList' is not valid."); //$NON-NLS-1$
+        }
+        return valueList;
+    }
+
+    @Override
+    public boolean isExpressionList() {
+        return this.valueList != null;
     }
 
     public <T> T accept(Visitor<T> visitor) {
@@ -53,11 +78,19 @@ public class BooleanConstant implements ConstantExpression<Boolean> {
             return false;
         }
         BooleanConstant that = (BooleanConstant) o;
-        return value == that.value;
+        if (isExpressionList()) {
+            return valueList.equals(that.valueList);
+        } else {
+            return value.equals(that.value);
+        }
     }
 
     @Override
     public int hashCode() {
-        return (value ? 1 : 0);
+        if (isExpressionList()) {
+            return this.valueList.hashCode();
+        } else {
+            return value.hashCode();
+        }
     }
 }

@@ -11,14 +11,26 @@
 
 package com.amalto.core.query.user;
 
+import java.util.List;
+
 import org.talend.mdm.commmon.metadata.Types;
 
 public class ByteConstant implements ConstantExpression<Byte> {
 
-    private final Byte constant;
+    private final Byte value;
 
-    public ByteConstant(String constant) {
-        this.constant = Byte.parseByte(constant);
+    private List<Byte> valueList;
+
+    public ByteConstant(String value) {
+        assert value != null;
+        this.value = Byte.parseByte(value);
+        this.valueList = null;
+    }
+
+    public ByteConstant(List<Byte> valueList) {
+        assert valueList != null;
+        this.valueList = valueList;
+        this.value = null;
     }
 
     public Expression normalize() {
@@ -35,7 +47,23 @@ public class ByteConstant implements ConstantExpression<Byte> {
     }
 
     public Byte getValue() {
-        return constant;
+        if (isExpressionList()) {
+            throw new IllegalStateException("The property of 'value' is not valid."); //$NON-NLS-1$
+        }
+        return value;
+    }
+
+    @Override
+    public List<Byte> getValueList() {
+        if (!isExpressionList()) {
+            throw new IllegalStateException("The property of 'valueList' is not valid."); //$NON-NLS-1$
+        }
+        return valueList;
+    }
+
+    @Override
+    public boolean isExpressionList() {
+        return this.valueList != null;
     }
 
     public String getTypeName() {
@@ -51,11 +79,20 @@ public class ByteConstant implements ConstantExpression<Byte> {
             return false;
         }
         ByteConstant that = (ByteConstant) o;
-        return constant.equals(that.constant);
+        if (isExpressionList()) {
+            return valueList.equals(that.valueList);
+        } else {
+            return value.equals(that.value);
+        }
     }
 
     @Override
     public int hashCode() {
-        return constant.hashCode();
+        if (isExpressionList()) {
+            return valueList.hashCode();
+        } else {
+            return this.value.hashCode();
+        }
     }
+
 }

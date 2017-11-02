@@ -23,7 +23,6 @@ import org.hibernate.Session;
 import org.hibernate.criterion.CriteriaQuery;
 import org.hibernate.criterion.Criterion;
 
-import java.sql.Timestamp;
 import java.util.*;
 
 abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
@@ -128,10 +127,11 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
             Collection<FieldMetadata> keyFields = type.getKeyFields();
             List<String> ids = new LinkedList<String>();
             StringBuilder builder = null;
-            String idAsString = id.getId();
-            if (idAsString.startsWith("[")) { //$NON-NLS-1$
-                for (char currentChar : idAsString.toCharArray()) {
-                    switch (currentChar) {
+            if (!id.isExpressionList()) {
+                String idAsString = id.getId();
+                if (idAsString.startsWith("[")) { //$NON-NLS-1$
+                    for (char currentChar : idAsString.toCharArray()) {
+                        switch (currentChar) {
                         case '[':
                             builder = new StringBuilder();
                             break;
@@ -145,23 +145,29 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
                                 builder.append(currentChar);
                             }
                             break;
+                        }
                     }
+                    if (ids.isEmpty()) {
+                        throw new IllegalArgumentException("Id '" + idAsString
+                                + "' does not match expected format (no id found).");
+                    }
+                } else {
+                    ids.add(idAsString);
                 }
-                if (ids.isEmpty()) {
-                    throw new IllegalArgumentException("Id '" + idAsString + "' does not match expected format (no id found).");
+                Iterator<FieldMetadata> iterator = keyFields.iterator();
+                if (ids.size() == 1) {
+                    return StorageMetadataUtils.convert(ids.get(0), iterator.next());
+                } else {
+                    Object[] convertedId = new Object[ids.size()];
+                    for (int i = 0; i < ids.size(); i++) {
+                        convertedId[i] = StorageMetadataUtils.convert(ids.get(i), iterator.next());
+                    }
+                    return convertedId;
                 }
             } else {
-                ids.add(idAsString);
-            }
-            Iterator<FieldMetadata> iterator = keyFields.iterator();
-            if (ids.size() == 1) {
-                return StorageMetadataUtils.convert(ids.get(0), iterator.next());
-            } else {
-                Object[] convertedId = new Object[ids.size()];
-                for (int i = 0; i< ids.size(); i++) {
-                    convertedId[i] = StorageMetadataUtils.convert(ids.get(i), iterator.next());
-                }
-                return convertedId;
+                ids = id.getIdList();
+                Iterator<FieldMetadata> iterator = keyFields.iterator();
+                return StorageMetadataUtils.convert(ids, iterator.next());
             }
         }
 
@@ -187,62 +193,62 @@ abstract class AbstractQueryHandler extends VisitorAdapter<StorageResults> {
 
         @Override
         public Object visit(StringConstant constant) {
-            return constant.getValue();
+            return constant.getValueObject();
         }
 
         @Override
         public Object visit(IntegerConstant constant) {
-            return constant.getValue();
+            return constant.getValueObject();
         }
 
         @Override
         public Object visit(DateConstant constant) {
-            return new Timestamp(constant.getValue().getTime());
+            return constant.getValueObject();
         }
 
         @Override
         public Object visit(DateTimeConstant constant) {
-            return new Timestamp(constant.getValue().getTime());
+            return constant.getValueObject();
         }
 
         @Override
         public Object visit(BooleanConstant constant) {
-            return constant.getValue();
+            return constant.getValueObject();
         }
 
         @Override
         public Object visit(BigDecimalConstant constant) {
-            return constant.getValue();
+            return constant.getValueObject();
         }
 
         @Override
         public Object visit(TimeConstant constant) {
-            return constant.getValue();
+            return constant.getValueObject();
         }
 
         @Override
         public Object visit(ShortConstant constant) {
-            return constant.getValue();
+            return constant.getValueObject();
         }
 
         @Override
         public Object visit(ByteConstant constant) {
-            return constant.getValue();
+            return constant.getValueObject();
         }
 
         @Override
         public Object visit(LongConstant constant) {
-            return constant.getValue();
+            return constant.getValueObject();
         }
 
         @Override
         public Object visit(DoubleConstant constant) {
-            return constant.getValue();
+            return constant.getValueObject();
         }
 
         @Override
         public Object visit(FloatConstant constant) {
-            return constant.getValue();
+            return constant.getValueObject();
         }
 
         @Override

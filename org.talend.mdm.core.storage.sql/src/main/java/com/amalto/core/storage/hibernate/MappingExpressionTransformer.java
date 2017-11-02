@@ -273,7 +273,11 @@ class MappingExpressionTransformer extends VisitorAdapter<Expression> {
 
     @Override
     public Expression visit(Id id) {
-        return new Id(getMapping(id.getType()), id.getId());
+        if (id.isExpressionList()) {
+            return new Id(getMapping(id.getType()), id.getIdList());
+        } else {
+            return new Id(getMapping(id.getType()), id.getId());
+        }
     }
 
     @Override
@@ -288,62 +292,74 @@ class MappingExpressionTransformer extends VisitorAdapter<Expression> {
 
     @Override
     public Expression visit(StringConstant constant) {
-        return getConstant(constant.getValue());
+        return getConstant(constant.getValueObject());
     }
 
     @Override
     public Expression visit(IntegerConstant constant) {
-        return getConstant(constant.getValue());
+        return getConstant(constant.getValueObject());
     }
 
     @Override
     public Expression visit(DateConstant constant) {
-        return constant;
+        if (constant.isExpressionList()) {
+            return getConstant(constant.getValueList());
+        } else {
+            return getConstant(DateConstant.DATE_FORMAT.format(constant.getValue()));
+        }
     }
 
     @Override
     public Expression visit(DateTimeConstant constant) {
-        return constant;
+        if (constant.isExpressionList()) {
+            return getConstant(constant.getValueList());
+        } else {
+            return getConstant(DateTimeConstant.DATE_FORMAT.format(constant.getValue()));
+        }
     }
 
     @Override
     public Expression visit(BooleanConstant constant) {
-        return getConstant(constant.getValue());
+        return getConstant(constant.getValueObject());
     }
 
     @Override
     public Expression visit(BigDecimalConstant constant) {
-        return getConstant(constant.getValue());
+        return getConstant(constant.getValueObject());
     }
 
     @Override
     public Expression visit(TimeConstant constant) {
-        return constant;
+        if (constant.isExpressionList()) {
+            return getConstant(constant.getValueList());
+        } else {
+            return getConstant(TimeConstant.TIME_FORMAT.format(constant.getValue()));
+        }
     }
 
     @Override
     public Expression visit(ShortConstant constant) {
-        return getConstant(constant.getValue());
+        return getConstant(constant.getValueObject());
     }
 
     @Override
     public Expression visit(ByteConstant constant) {
-        return getConstant(constant.getValue());
+        return getConstant(constant.getValueObject());
     }
 
     @Override
     public Expression visit(LongConstant constant) {
-        return getConstant(constant.getValue());
+        return getConstant(constant.getValueObject());
     }
 
     @Override
     public Expression visit(DoubleConstant constant) {
-        return getConstant(constant.getValue());
+        return getConstant(constant.getValueObject());
     }
 
     @Override
     public Expression visit(FloatConstant constant) {
-        return getConstant(constant.getValue());
+        return getConstant(constant.getValueObject());
     }
 
     @Override
@@ -420,9 +436,23 @@ class MappingExpressionTransformer extends VisitorAdapter<Expression> {
         return mappedField;
     }
 
+    @SuppressWarnings("rawtypes")
     private Expression getConstant(Object data) {
-        if (StorageMetadataUtils.isValueAssignable(String.valueOf(data), currentField.getTypeName())) {
-            return UserQueryBuilder.createConstant(currentField, String.valueOf(data));
+        if (data instanceof List) {
+            return getConstant((List) data);
+        } else {
+            if (StorageMetadataUtils.isValueAssignable(String.valueOf(data), currentField.getTypeName())) {
+                return UserQueryBuilder.createConstant(currentField, String.valueOf(data));
+            } else {
+                return null;
+            }
+        }
+    }
+
+    @SuppressWarnings("rawtypes")
+    private Expression getConstant(List data) {
+        if (StorageMetadataUtils.isValueAssignable(data, currentField.getTypeName())) {
+            return UserQueryBuilder.createConstant(currentField, data);
         } else {
             return null;
         }

@@ -11,6 +11,8 @@
 
 package com.amalto.core.query.user;
 
+import java.util.List;
+
 /**
  *
  */
@@ -18,4 +20,15 @@ public interface ConstantExpression<T extends Comparable> extends TypedExpressio
 
     public T getValue();
 
+    public List<T> getValueList();
+
+    public boolean isExpressionList();
+
+    default Object getValueObject() {
+        if (isExpressionList()) {
+            return getValueList();
+        } else {
+            return getValue();
+        }
+    }
 }

@@ -11,14 +11,26 @@
 
 package com.amalto.core.query.user;
 
+import java.util.List;
+
 import org.talend.mdm.commmon.metadata.Types;
 
 public class ShortConstant implements ConstantExpression<Short> {
 
-    private final Short constant;
+    private final Short value;
 
-    public ShortConstant(String constant) {
-        this.constant = Short.parseShort(constant);
+    private List<Short> valueList;
+
+    public ShortConstant(String value) {
+        assert value != null;
+        this.value = Short.parseShort(value);
+        this.valueList = null;
+    }
+
+    public ShortConstant(List<Short> valueList) {
+        assert valueList != null;
+        this.valueList = valueList;
+        this.value = null;
     }
 
     public Expression normalize() {
@@ -35,7 +47,23 @@ public class ShortConstant implements ConstantExpression<Short> {
     }
 
     public Short getValue() {
-        return constant;
+        if (isExpressionList()) {
+            throw new IllegalStateException("The property of 'value' is not valid."); //$NON-NLS-1$
+        }
+        return value;
+    }
+
+    @Override
+    public List<Short> getValueList() {
+        if (!isExpressionList()) {
+            throw new IllegalStateException("The property of 'valueList' is not valid."); //$NON-NLS-1$
+        }
+        return valueList;
+    }
+
+    @Override
+    public boolean isExpressionList() {
+        return this.valueList != null;
     }
 
     public String getTypeName() {
@@ -51,11 +79,20 @@ public class ShortConstant implements ConstantExpression<Short> {
             return false;
         }
         ShortConstant that = (ShortConstant) o;
-        return constant.equals(that.constant);
+        if (isExpressionList()) {
+            return valueList.equals(that.valueList);
+        } else {
+            return value.equals(that.value);
+        }
     }
 
     @Override
     public int hashCode() {
-        return constant.hashCode();
+        if (isExpressionList()) {
+            return valueList.hashCode();
+        } else {
+            return value.hashCode();
+        }
     }
+
 }

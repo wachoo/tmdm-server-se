@@ -9,14 +9,26 @@
  */
 package com.amalto.core.query.user;
 
+import java.util.List;
+
 import org.talend.mdm.commmon.metadata.Types;
 
 public class IntegerConstant implements ConstantExpression<Integer> {
 
-    private final int constant;
+    private final Integer value;
 
-    public IntegerConstant(int constant) {
-        this.constant = constant;
+    private List<Integer> valueList;
+
+    public IntegerConstant(String value) {
+        assert value != null;
+        this.value = Integer.parseInt(value);
+        this.valueList = null;
+    }
+
+    public IntegerConstant(List<Integer> valueList) {
+        assert valueList != null;
+        this.valueList = valueList;
+        this.value = null;
     }
 
     public Expression normalize() {
@@ -33,7 +45,23 @@ public class IntegerConstant implements ConstantExpression<Integer> {
     }
 
     public Integer getValue() {
-        return constant;
+        if (isExpressionList()) {
+            throw new IllegalStateException("The property of 'value' is not valid."); //$NON-NLS-1$
+        }
+        return value;
+    }
+
+    @Override
+    public List<Integer> getValueList() {
+        if (!isExpressionList()) {
+            throw new IllegalStateException("The property of 'valueList' is not valid."); //$NON-NLS-1$
+        }
+        return valueList;
+    }
+
+    @Override
+    public boolean isExpressionList() {
+        return this.valueList != null;
     }
 
     public String getTypeName() {
@@ -49,11 +77,20 @@ public class IntegerConstant implements ConstantExpression<Integer> {
             return false;
         }
         IntegerConstant that = (IntegerConstant) o;
-        return constant == that.constant;
+        if (isExpressionList()) {
+            return valueList.equals(that.valueList);
+        } else {
+            return value.equals(that.value);
+        }
     }
 
     @Override
     public int hashCode() {
-        return constant;
+        if (isExpressionList()) {
+            return valueList.hashCode();
+        } else {
+            return value.hashCode();
+        }
     }
+
 }

@@ -106,4 +106,12 @@ public interface Predicate extends Visitable {
 
     }
 
+    Predicate IN = new In();
+
+    static class In implements Predicate {
+        public <T> T accept(Visitor<T> visitor) {
+            return visitor.visit(this);
+        }
+
+    }
 }

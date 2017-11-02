@@ -11,6 +11,7 @@
 
 package com.amalto.core.query.user;
 
+import java.util.List;
 
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 
@@ -20,9 +21,20 @@ public class Id implements Expression {
 
     private final String id;
 
+    private List<String> idList;
+
     public Id(ComplexTypeMetadata type, String id) {
+        assert id != null;
         this.type = type;
         this.id = id;
+        this.idList = null;
+    }
+
+    public Id(ComplexTypeMetadata type, List<String> idList) {
+        assert idList != null;
+        this.type = type;
+        this.idList = idList;
+        this.id = null;
     }
 
     public Expression normalize() {
@@ -39,7 +51,21 @@ public class Id implements Expression {
     }
 
     public String getId() {
+        if (isExpressionList()) {
+            throw new IllegalStateException("The property of 'value' is not valid."); //$NON-NLS-1$
+        }
         return id;
+    }
+
+    public List<String> getIdList() {
+        if (!isExpressionList()) {
+            throw new IllegalStateException("The property of 'valueList' is not valid."); //$NON-NLS-1$
+        }
+        return idList;
+    }
+
+    public boolean isExpressionList() {
+        return this.idList != null;
     }
 
     public ComplexTypeMetadata getType() {
@@ -55,9 +81,14 @@ public class Id implements Expression {
             return false;
         }
         Id id1 = (Id) o;
-        if (id != null ? !id.equals(id1.id) : id1.id != null) {
-            return false;
+        if (isExpressionList()) {
+            return this.idList.equals(id1.idList);
+        } else {
+            if (id != null ? !id.equals(id1.id) : id1.id != null) {
+                return false;
+            }
         }
+
         if (type != null ? !type.equals(id1.type) : id1.type != null) {
             return false;
         }
@@ -67,7 +98,11 @@ public class Id implements Expression {
     @Override
     public int hashCode() {
         int result = type != null ? type.hashCode() : 0;
-        result = 31 * result + (id != null ? id.hashCode() : 0);
+        if (isExpressionList()) {
+            result = 31 * result + idList.hashCode();
+        } else {
+            result = 31 * result + (id != null ? id.hashCode() : 0);
+        }
         return result;
     }
 }

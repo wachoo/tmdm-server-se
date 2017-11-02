@@ -14,18 +14,18 @@ import java.util.List;
 import com.amalto.core.query.user.Condition;
 import com.amalto.core.query.user.TypedExpression;
 
-import static com.amalto.core.query.user.UserQueryBuilder.startsWith;
+import static com.amalto.core.query.user.UserQueryBuilder.in;
 
-class StartsWithProcessor extends BasicConditionProcessor {
+class InProcessor extends BasicConditionProcessor {
 
-    static ConditionProcessor INSTANCE = new StartsWithProcessor();
+    static ConditionProcessor INSTANCE = new InProcessor();
 
-    private StartsWithProcessor() {
+    private InProcessor() {
     }
 
     @Override
     protected Condition buildCondition(TypedExpression expression, String value) {
-        return startsWith(expression, value);
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -35,12 +35,12 @@ class StartsWithProcessor extends BasicConditionProcessor {
 
     @Override
     protected String getConditionElement() {
-        return "startsWith"; //$NON-NLS-1
+        return "in"; //$NON-NLS-1
     }
 
     @SuppressWarnings("rawtypes")
     @Override
     protected Condition buildCondition(TypedExpression expression, List value) {
-        throw new UnsupportedOperationException();
+        return in(expression, value);
     }
 }

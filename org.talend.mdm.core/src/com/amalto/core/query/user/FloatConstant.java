@@ -11,14 +11,26 @@
 
 package com.amalto.core.query.user;
 
+import java.util.List;
+
 import org.talend.mdm.commmon.metadata.Types;
 
 public class FloatConstant implements ConstantExpression<Float> {
 
-    private final Float constant;
+    private final Float value;
 
-    public FloatConstant(String constant) {
-        this.constant = Float.parseFloat(constant);
+    private List<Float> valueList;
+
+    public FloatConstant(String value) {
+        assert value != null;
+        this.value = Float.parseFloat(value);
+        this.valueList = null;
+    }
+
+    public FloatConstant(List<Float> valueList) {
+        assert valueList != null;
+        this.valueList = valueList;
+        this.value = null;
     }
 
     public Expression normalize() {
@@ -35,7 +47,23 @@ public class FloatConstant implements ConstantExpression<Float> {
     }
 
     public Float getValue() {
-        return constant;
+        if (isExpressionList()) {
+            throw new IllegalStateException("The property of 'value' is not valid."); //$NON-NLS-1$
+        }
+        return value;
+    }
+
+    @Override
+    public List<Float> getValueList() {
+        if (!isExpressionList()) {
+            throw new IllegalStateException("The property of 'valueList' is not valid."); //$NON-NLS-1$
+        }
+        return valueList;
+    }
+
+    @Override
+    public boolean isExpressionList() {
+        return this.valueList != null;
     }
 
     public String getTypeName() {
@@ -51,11 +79,20 @@ public class FloatConstant implements ConstantExpression<Float> {
             return false;
         }
         FloatConstant that = (FloatConstant) o;
-        return !(constant != null ? !constant.equals(that.constant) : that.constant != null);
+        if (isExpressionList()) {
+            return valueList.equals(that.valueList);
+        } else {
+            return value.equals(that.value);
+        }
     }
 
     @Override
     public int hashCode() {
-        return constant != null ? constant.hashCode() : 0;
+        if (isExpressionList()) {
+            return valueList.hashCode();
+        } else {
+            return value.hashCode();
+        }
     }
+
 }

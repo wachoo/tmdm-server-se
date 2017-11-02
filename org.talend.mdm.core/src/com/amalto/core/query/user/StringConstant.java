@@ -11,21 +11,46 @@
 
 package com.amalto.core.query.user;
 
+import java.util.List;
+
 import org.talend.mdm.commmon.metadata.Types;
 
-/**
- *
- */
 public class StringConstant implements ConstantExpression<String> {
 
     private final String value;
 
+    private List<String> valueList;
+
     public StringConstant(String value) {
+        assert value != null;
         this.value = value;
+        this.valueList = null;
+    }
+
+    public StringConstant(List<String> valueList) {
+        assert valueList != null;
+        this.valueList = valueList;
+        this.value = null;
     }
 
     public String getValue() {
+        if (isExpressionList()) {
+            throw new IllegalStateException("The property of 'value' is not valid."); //$NON-NLS-1$
+        }
         return value;
+    }
+
+    @Override
+    public List<String> getValueList() {
+        if (!isExpressionList()) {
+            throw new IllegalStateException("The property of 'valueList' is not valid."); //$NON-NLS-1$
+        }
+        return valueList;
+    }
+
+    @Override
+    public boolean isExpressionList() {
+        return this.valueList != null;
     }
 
     public <T> T accept(Visitor<T> visitor) {
@@ -54,11 +79,20 @@ public class StringConstant implements ConstantExpression<String> {
             return false;
         }
         StringConstant that = (StringConstant) o;
-        return !(value != null ? !value.equals(that.value) : that.value != null);
+        if (isExpressionList()) {
+            return valueList.equals(that.valueList);
+        } else {
+            return value.equals(that.value);
+        }
     }
 
     @Override
     public int hashCode() {
-        return value != null ? value.hashCode() : 0;
+        if (isExpressionList()) {
+            return valueList.hashCode();
+        } else {
+            return value.hashCode();
+        }
     }
+
 }

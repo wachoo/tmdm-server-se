@@ -16,28 +16,52 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
-/**
- *
- */
 public class DateConstant implements ConstantExpression<Date> {
 
     public static final DateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd"); //$NON-NLS-1$
 
     private final Date value;
 
+    private List<Date> valueList;
+
     public DateConstant(String value) {
+        assert value != null;
         synchronized (DATE_FORMAT) {
             try {
                 this.value = DATE_FORMAT.parse(value);
+                this.valueList = null;
             } catch (ParseException e) {
                 throw new RuntimeException(e);
             }
         }
     }
 
+    public DateConstant(List<Date> valueList) {
+        assert valueList != null;
+        this.valueList = valueList;
+        this.value = null;
+    }
+
     public Date getValue() {
+        if (isExpressionList()) {
+            throw new IllegalStateException("The property of 'value' is not valid."); //$NON-NLS-1$
+        }
         return value;
+    }
+
+    @Override
+    public List<Date> getValueList() {
+        if (!isExpressionList()) {
+            throw new IllegalStateException("The property of 'valueList' is not valid."); //$NON-NLS-1$
+        }
+        return valueList;
+    }
+
+    @Override
+    public boolean isExpressionList() {
+        return this.valueList != null;
     }
 
     public <T> T accept(Visitor<T> visitor) {
@@ -66,12 +90,20 @@ public class DateConstant implements ConstantExpression<Date> {
             return false;
         }
         DateConstant that = (DateConstant) o;
-        return !(value != null ? !value.equals(that.value) : that.value != null);
-
+        if (isExpressionList()) {
+            return valueList.equals(that.valueList);
+        } else {
+            return value.equals(that.value);
+        }
     }
 
     @Override
     public int hashCode() {
-        return value != null ? value.hashCode() : 0;
+        if (isExpressionList()) {
+            return valueList.hashCode();
+        } else {
+            return value.hashCode();
+        }
     }
+
 }

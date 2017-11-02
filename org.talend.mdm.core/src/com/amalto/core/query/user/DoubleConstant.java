@@ -8,17 +8,28 @@
  * along with this program; if not, write to Talend SA
  * 9 rue Pages 92150 Suresnes, France
  */
-
 package com.amalto.core.query.user;
+
+import java.util.List;
 
 import org.talend.mdm.commmon.metadata.Types;
 
 public class DoubleConstant implements ConstantExpression<Double> {
 
-    private final Double constant;
+    private final Double value;
 
-    public DoubleConstant(String constant) {
-        this.constant = Double.parseDouble(constant);
+    private List<Double> valueList;
+
+    public DoubleConstant(String value) {
+        assert value != null;
+        this.value = Double.parseDouble(value);
+        this.valueList = null;
+    }
+
+    public DoubleConstant(List<Double> valueList) {
+        assert valueList != null;
+        this.valueList = valueList;
+        this.value = null;
     }
 
     public Expression normalize() {
@@ -35,7 +46,23 @@ public class DoubleConstant implements ConstantExpression<Double> {
     }
 
     public Double getValue() {
-        return constant;
+        if (isExpressionList()) {
+            throw new IllegalStateException("The property of 'value' is not valid."); //$NON-NLS-1$
+        }
+        return value;
+    }
+
+    @Override
+    public List<Double> getValueList() {
+        if (!isExpressionList()) {
+            throw new IllegalStateException("The property of 'valueList' is not valid."); //$NON-NLS-1$
+        }
+        return valueList;
+    }
+
+    @Override
+    public boolean isExpressionList() {
+        return this.valueList != null;
     }
 
     public String getTypeName() {
@@ -51,11 +78,19 @@ public class DoubleConstant implements ConstantExpression<Double> {
             return false;
         }
         DoubleConstant that = (DoubleConstant) o;
-        return !(constant != null ? !constant.equals(that.constant) : that.constant != null);
+        if (isExpressionList()) {
+            return valueList.equals(that.valueList);
+        } else {
+            return value.equals(that.value);
+        }
     }
 
     @Override
     public int hashCode() {
-        return constant != null ? constant.hashCode() : 0;
+        if (isExpressionList()) {
+            return valueList.hashCode();
+        } else {
+            return value.hashCode();
+        }
     }
 }

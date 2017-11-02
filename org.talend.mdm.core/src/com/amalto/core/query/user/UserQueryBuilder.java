@@ -15,17 +15,18 @@ import com.amalto.core.query.user.metadata.MetadataField;
 import com.amalto.core.query.user.metadata.TaskId;
 import com.amalto.core.query.user.metadata.Timestamp;
 import com.amalto.core.storage.StorageMetadataUtils;
+
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.*;
 
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.*;
 
-/**
- *
- */
 public class UserQueryBuilder {
 
     public static final String ID_FIELD = "../../i"; //$NON-NLS-1$
@@ -216,12 +217,101 @@ public class UserQueryBuilder {
         }
     }
 
+    public static Condition in(TypedExpression left, TypedExpression right) {
+        return new Compare(left, Predicate.IN, right);
+    }
+
+    public static Condition in(TypedExpression expression, String constant) {
+        assertNullField(expression);
+        if (expression instanceof Field) {
+            return in(((Field) expression), constant);
+        } else {
+            if (constant == null) {
+                return isNull(expression);
+            }
+            return new Compare(expression, Predicate.IN, createConstant(expression, constant));
+        }
+    }
+
+    @SuppressWarnings("rawtypes")
+    public static Condition in(TypedExpression expression, List constant) {
+        assertNullField(expression);
+        if (expression instanceof Field) {
+            return in(((Field) expression), constant);
+        } else {
+            if (constant == null) {
+                return isNull(expression);
+            }
+            return new Compare(expression, Predicate.IN, createConstant(expression, constant));
+        }
+    }
+
+    public static Condition in(FieldMetadata field, String constant) {
+        assertNullField(field);
+        Field userField = new Field(field);
+        if (StorageMetadataUtils.isValueAssignable(constant, field)) {
+            return in(userField, constant);
+        } else {
+            return UserQueryHelper.FALSE;
+        }
+    }
+
+    @SuppressWarnings("rawtypes")
+    public static Condition in(FieldMetadata field, List constant) {
+        assertNullField(field);
+        Field userField = new Field(field);
+        if (StorageMetadataUtils.isValueAssignable(constant, field)) {
+            return in(userField, constant);
+        } else {
+            return UserQueryHelper.FALSE;
+        }
+    }
+
+    public static Condition in(Field field, String constant) {
+        if (field == null) {
+            throw new IllegalArgumentException("Field cannot be null"); //$NON-NLS-1$
+        }
+        if (constant == null) {
+            return isNull(field);
+        }
+        assertValueConditionArguments(field, constant);
+        if (!StorageMetadataUtils.isValueAssignable(constant, field.getFieldMetadata())) {
+            return UserQueryHelper.FALSE;
+        }
+        if (field.getFieldMetadata() instanceof ReferenceFieldMetadata) {
+            ReferenceFieldMetadata fieldMetadata = (ReferenceFieldMetadata) field.getFieldMetadata();
+            return new Compare(field, Predicate.IN, new Id(fieldMetadata.getReferencedType(), constant));
+        } else {
+            return new Compare(field, Predicate.IN, createConstant(field, constant));
+        }
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public static Condition in(Field field, List constant) {
+        if (field == null) {
+            throw new IllegalArgumentException("Field cannot be null"); //$NON-NLS-1$
+        }
+        if (constant == null) {
+            return isNull(field);
+        }
+        assertValueConditionArguments(field, constant);
+        if (!StorageMetadataUtils.isValueAssignable(constant, field.getFieldMetadata())) {
+            return UserQueryHelper.FALSE;
+        }
+        if (field.getFieldMetadata() instanceof ReferenceFieldMetadata) {
+            ReferenceFieldMetadata fieldMetadata = (ReferenceFieldMetadata) field.getFieldMetadata();
+            return new Compare(field, Predicate.IN, new Id(fieldMetadata.getReferencedType(), constant));
+        } else {
+            return new Compare(field, Predicate.IN, createConstant(field, constant));
+        }
+    }
+
     public static Condition isa(FieldMetadata field, ComplexTypeMetadata type) {
         if (type == null) {
-            throw new IllegalArgumentException("Type argument cannot be null.");
+            throw new IllegalArgumentException("Type argument cannot be null."); //$NON-NLS-1$
         }
         if (field instanceof ReferenceFieldMetadata) {
-            throw new IllegalArgumentException("Cannot perform type check on a foreign key.");
+            throw new IllegalArgumentException("Cannot perform type check on a foreign key."); //$NON-NLS-1$
         }
         // Get the matching type from the field definition (field uses a contained version of the type).
         ComplexTypeMetadata fieldType = type;
@@ -274,9 +364,9 @@ public class UserQueryBuilder {
                 || Types.UNSIGNED_INT.equals(fieldTypeName)
                 || Types.INT.equals(fieldTypeName)) {
             if (constant.isEmpty()) {
-                return new IntegerConstant(0);
+                return new IntegerConstant(String.valueOf(0));
             } else {
-                return new IntegerConstant(Integer.parseInt(constant));
+                return new IntegerConstant(constant);
             }
         } else if (Types.STRING.equals(fieldTypeName)
                 || Types.HEX_BINARY.equals(fieldTypeName)
@@ -292,8 +382,7 @@ public class UserQueryBuilder {
         } else if (Types.TIME.equals(fieldTypeName)) {
             return new TimeConstant(constant);
         } else if (Types.BOOLEAN.equals(fieldTypeName)) {
-            boolean value = Boolean.parseBoolean(constant);
-            return new BooleanConstant(value);
+            return new BooleanConstant(constant);
         } else if (Types.DECIMAL.equals(fieldTypeName)) {
             return new BigDecimalConstant(constant);
         } else if (Types.SHORT.equals(fieldTypeName) || Types.UNSIGNED_SHORT.equals(fieldTypeName)) {
@@ -308,6 +397,179 @@ public class UserQueryBuilder {
             return new FloatConstant(constant);
         } else {
             throw new IllegalArgumentException("Cannot create expression constant for expression type '" + expression.getTypeName() + "' (is expression allowed to contain values?)");
+        }
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public static TypedExpression createConstant(TypedExpression expression, List constant) {
+        String fieldTypeName = expression.getTypeName();
+        if (Types.INTEGER.equals(fieldTypeName) || Types.POSITIVE_INTEGER.equals(fieldTypeName)
+                || Types.NEGATIVE_INTEGER.equals(fieldTypeName) || Types.NON_POSITIVE_INTEGER.equals(fieldTypeName)
+                || Types.NON_NEGATIVE_INTEGER.equals(fieldTypeName) || Types.UNSIGNED_INT.equals(fieldTypeName)
+                || Types.INT.equals(fieldTypeName)) {
+            if (constant.isEmpty()) {
+                throw new IllegalArgumentException("in query collection list is empty.");
+            } else {
+                CollectionUtils.transform(constant, new Transformer() {
+
+                    public java.lang.Object transform(java.lang.Object input) {
+                        if (input instanceof String) {
+                            return new Integer((String) input);
+                        } else {
+                            return input;
+                        }
+                    }
+                });
+                return new IntegerConstant(constant);
+            }
+        } else if (Types.STRING.equals(fieldTypeName) || Types.HEX_BINARY.equals(fieldTypeName)
+                || Types.BASE64_BINARY.equals(fieldTypeName) || Types.ANY_URI.equals(fieldTypeName)
+                || Types.QNAME.equals(fieldTypeName) || Types.DURATION.equals(fieldTypeName)) {
+            return new StringConstant(constant);
+        } else if (Types.DATE.equals(fieldTypeName)) {
+            CollectionUtils.transform(constant, new Transformer() {
+
+                public java.lang.Object transform(java.lang.Object input) {
+                    if (input instanceof String) {
+                        try {
+                            return DateConstant.DATE_FORMAT.parse((String) input);
+                        } catch (ParseException e) {
+                            throw new IllegalArgumentException("Value '" + input.toString() + "' is not valid for Date");
+                        }
+                    } else {
+                        return input;
+                    }
+                }
+            });
+            return new DateConstant(constant);
+        } else if (Types.DATETIME.equals(fieldTypeName)) {
+            CollectionUtils.transform(constant, new Transformer() {
+
+                public java.lang.Object transform(java.lang.Object input) {
+                    if (input instanceof String) {
+                        try {
+                            return DateTimeConstant.DATE_FORMAT.parse((String) input);
+                        } catch (ParseException e) {
+                            throw new IllegalArgumentException("Value '" + input.toString() + "' is not valid for Date Time");
+                        }
+                    } else {
+                        return input;
+                    }
+
+                }
+            });
+            return new DateTimeConstant(constant);
+        } else if (Types.TIME.equals(fieldTypeName)) {
+            CollectionUtils.transform(constant, new Transformer() {
+
+                public java.lang.Object transform(java.lang.Object input) {
+                    if (input instanceof String) {
+                        try {
+                            return TimeConstant.TIME_FORMAT.parse((String) input);
+                        } catch (ParseException e) {
+                            throw new IllegalArgumentException("Value '" + input.toString() + "' is not valid for Time");
+                        }
+                    } else {
+                        return input;
+                    }
+                }
+            });
+            return new TimeConstant(constant);
+        } else if (Types.BOOLEAN.equals(fieldTypeName)) {
+            CollectionUtils.transform(constant, new Transformer() {
+
+                public java.lang.Object transform(java.lang.Object input) {
+                    if (input instanceof String) {
+                        if ("0".equals(input.toString())) { //$NON-NLS-1$
+                            return false;
+                        } else if ("1".equals(input.toString())) { //$NON-NLS-1$
+                            return true;
+                        }
+                        if (!"false".equalsIgnoreCase(input.toString()) && !"true".equalsIgnoreCase(input.toString())) { //$NON-NLS-1$ //$NON-NLS-2$
+                            throw new IllegalArgumentException("Value '" + input.toString() + "' is not valid for boolean");
+                        }
+                        return Boolean.parseBoolean(input.toString());
+                    } else {
+                        return input;
+                    }
+                }
+            });
+            return new BooleanConstant(constant);
+        } else if (Types.DECIMAL.equals(fieldTypeName)) {
+            CollectionUtils.transform(constant, new Transformer() {
+
+                public java.lang.Object transform(java.lang.Object input) {
+                    if (input instanceof String) {
+                        return new BigDecimal((String) input);
+                    } else {
+                        return input;
+                    }
+                }
+            });
+            return new BigDecimalConstant(constant);
+        } else if (Types.SHORT.equals(fieldTypeName) || Types.UNSIGNED_SHORT.equals(fieldTypeName)) {
+            CollectionUtils.transform(constant, new Transformer() {
+
+                public java.lang.Object transform(java.lang.Object input) {
+                    if (input instanceof String) {
+                        return Short.parseShort((String) input);
+                    } else {
+                        return input;
+                    }
+                }
+            });
+            return new ShortConstant(constant);
+        } else if (Types.BYTE.equals(fieldTypeName) || Types.UNSIGNED_BYTE.equals(fieldTypeName)) {
+            CollectionUtils.transform(constant, new Transformer() {
+
+                public java.lang.Object transform(java.lang.Object input) {
+                    if (input instanceof String) {
+                        return Byte.parseByte((String) input);
+                    } else {
+                        return input;
+                    }
+                }
+            });
+            return new ByteConstant(constant);
+        } else if (Types.LONG.equals(fieldTypeName) || Types.UNSIGNED_LONG.equals(fieldTypeName)) {
+            CollectionUtils.transform(constant, new Transformer() {
+
+                public java.lang.Object transform(java.lang.Object input) {
+                    if (input instanceof String) {
+                        return Long.parseLong((String) input);
+                    } else {
+                        return input;
+                    }
+                }
+            });
+            return new LongConstant(constant);
+        } else if (Types.DOUBLE.equals(fieldTypeName)) {
+            CollectionUtils.transform(constant, new Transformer() {
+
+                public java.lang.Object transform(java.lang.Object input) {
+                    if (input instanceof String) {
+                        return Double.parseDouble((String) input);
+                    } else {
+                        return input;
+                    }
+                }
+            });
+            return new DoubleConstant(constant);
+        } else if (Types.FLOAT.equals(fieldTypeName)) {
+            CollectionUtils.transform(constant, new Transformer() {
+
+                public java.lang.Object transform(java.lang.Object input) {
+                    if (input instanceof String) {
+                        return Float.parseFloat((String) input);
+                    } else {
+                        return input;
+                    }
+                }
+            });
+            return new FloatConstant(constant);
+        } else {
+            throw new IllegalArgumentException("Cannot create expression constant for expression type '"
+                    + expression.getTypeName() + "' (is expression allowed to contain values?)");
         }
     }
 
@@ -357,12 +619,12 @@ public class UserQueryBuilder {
         String typeName = MetadataUtils.getSuperConcreteType(field.getType()).getName();
         for (String numberType : Types.NUMBERS) {
             if (numberType.equals(typeName)) {
-                return new Compare(new Field(field), Predicate.EQUALS, new IntegerConstant(0));
+                return new Compare(new Field(field), Predicate.EQUALS, new IntegerConstant(String.valueOf(0)));
             }
         }
         // For booleans, consider "field equals false"
         if (Types.BOOLEAN.equals(typeName)) {
-            return new Compare(new Field(field), Predicate.EQUALS, new BooleanConstant(false));
+            return new Compare(new Field(field), Predicate.EQUALS, new BooleanConstant(Boolean.FALSE.toString()));
         }
         // Dates
         for (String dateType : Types.DATES) {
@@ -760,6 +1022,20 @@ public class UserQueryBuilder {
         }
         if (constant == null) {
             throw new IllegalArgumentException("Constant cannot be null");
+        }
+    }
+
+    @SuppressWarnings("rawtypes")
+    private static void assertValueConditionArguments(Object field, Collection constant) {
+        if (field == null) {
+            throw new IllegalArgumentException("Field cannot be null");
+        }
+        if (constant == null) {
+            throw new IllegalArgumentException("Constant cannot be null");
+        }
+
+        if (constant.isEmpty()) {
+            throw new IllegalArgumentException("Constant cannot be empty");
         }
     }
 

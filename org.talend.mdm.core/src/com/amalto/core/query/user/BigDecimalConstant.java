@@ -11,14 +11,26 @@
 package com.amalto.core.query.user;
 
 import org.talend.mdm.commmon.metadata.Types;
+
 import java.math.BigDecimal;
+import java.util.List;
 
 public class BigDecimalConstant implements ConstantExpression<BigDecimal> {
 
-    private final BigDecimal constant;
+    private final BigDecimal value;
 
-    public BigDecimalConstant(String constant) {
-        this.constant = new BigDecimal(constant);
+    private List<BigDecimal> valueList;
+
+    public BigDecimalConstant(String value) {
+        assert value != null;
+        this.value = new BigDecimal(value);
+        this.valueList = null;
+    }
+
+    public BigDecimalConstant(List<BigDecimal> valueList) {
+        assert valueList != null;
+        this.value = null;
+        this.valueList = valueList;
     }
 
     public Expression normalize() {
@@ -35,7 +47,21 @@ public class BigDecimalConstant implements ConstantExpression<BigDecimal> {
     }
 
     public BigDecimal getValue() {
-        return constant;
+        if (isExpressionList()) {
+            throw new IllegalStateException("The property of 'value' is not valid."); //$NON-NLS-1$
+        }
+        return value;
+    }
+
+    public List<BigDecimal> getValueList() {
+        if (!isExpressionList()) {
+            throw new IllegalStateException("The property of 'valueList' is not valid."); //$NON-NLS-1$
+        }
+        return valueList;
+    }
+
+    @Override public boolean isExpressionList() {
+        return this.valueList != null;
     }
 
     public String getTypeName() {
@@ -51,11 +77,19 @@ public class BigDecimalConstant implements ConstantExpression<BigDecimal> {
             return false;
         }
         BigDecimalConstant that = (BigDecimalConstant) o;
-        return constant.equals(that.constant);
+        if (this.isExpressionList()) {
+            return valueList.equals(that.valueList);
+        } else {
+            return value.equals(that.value);
+        }
     }
 
     @Override
     public int hashCode() {
-        return constant.hashCode();
+        if (isExpressionList()) {
+            return this.valueList.hashCode();
+        } else {
+            return value.hashCode();
+        }
     }
 }

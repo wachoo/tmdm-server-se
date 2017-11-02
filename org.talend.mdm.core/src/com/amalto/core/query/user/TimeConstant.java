@@ -14,31 +14,55 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import org.talend.mdm.commmon.metadata.Types;
 
-/**
- *
- */
 public class TimeConstant implements ConstantExpression<Date> {
 
     public static final DateFormat TIME_FORMAT = new SimpleDateFormat("HH:mm:ss"); //$NON-NLS-1$
 
     private final Date value;
 
+    private List<Date> valueList;
+
     public TimeConstant(String value) {
+        assert value != null;
         synchronized (TIME_FORMAT) {
             try {
                 this.value = TIME_FORMAT.parse(value);
+                this.valueList = null;
             } catch (ParseException e) {
                 throw new RuntimeException(e);
             }
         }
     }
 
+    public TimeConstant(List<Date> valueList) {
+        assert valueList != null;
+        this.valueList = valueList;
+        this.value = null;
+    }
+
     @Override
     public Date getValue() {
+        if (isExpressionList()) {
+            throw new IllegalStateException("The property of 'value' is not valid."); //$NON-NLS-1$
+        }
         return value;
+    }
+
+    @Override
+    public List<Date> getValueList() {
+        if (!isExpressionList()) {
+            throw new IllegalStateException("The property of 'valueList' is not valid."); //$NON-NLS-1$
+        }
+        return valueList;
+    }
+
+    @Override
+    public boolean isExpressionList() {
+        return this.valueList != null;
     }
 
     @Override
@@ -70,11 +94,20 @@ public class TimeConstant implements ConstantExpression<Date> {
             return false;
         }
         TimeConstant that = (TimeConstant) o;
-        return !(value != null ? !value.equals(that.value) : that.value != null);
+        if (isExpressionList()) {
+            return valueList.equals(that.valueList);
+        } else {
+            return value.equals(that.value);
+        }
     }
 
     @Override
     public int hashCode() {
-        return value != null ? value.hashCode() : 0;
+        if (isExpressionList()) {
+            return valueList.hashCode();
+        } else {
+            return value.hashCode();
+        }
     }
+
 }

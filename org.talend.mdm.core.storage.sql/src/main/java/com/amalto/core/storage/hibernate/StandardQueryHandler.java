@@ -21,6 +21,7 @@ import static org.hibernate.criterion.Restrictions.like;
 import static org.hibernate.criterion.Restrictions.lt;
 import static org.hibernate.criterion.Restrictions.not;
 import static org.hibernate.criterion.Restrictions.or;
+import static org.hibernate.criterion.Restrictions.in;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -123,6 +124,7 @@ import com.amalto.core.storage.datasource.DataSource;
 import com.amalto.core.storage.datasource.RDBMSDataSource;
 import com.amalto.core.storage.exception.UnsupportedQueryException;
 import com.amalto.core.storage.record.DataRecord;
+
 
 class StandardQueryHandler extends AbstractQueryHandler {
 
@@ -1266,11 +1268,13 @@ class StandardQueryHandler extends AbstractQueryHandler {
                             }
                         }
                         if (leftFieldCondition.position >= 0) {
-                            return new ManyFieldCriterion(datasource, typeCheckCriteria, resolver, fieldMetadata, condition
-                                    .getRight().accept(VALUE_ADAPTER), leftFieldCondition.position);
+                            return new ManyFieldCriterion(datasource, typeCheckCriteria, resolver, fieldMetadata,
+                                    condition.getRight().accept(VALUE_ADAPTER), condition.getPredicate(), leftField.getTypeName(),
+                                    leftFieldCondition.position);
                         } else {
-                            return new ManyFieldCriterion(datasource, typeCheckCriteria, resolver, fieldMetadata, condition
-                                    .getRight().accept(VALUE_ADAPTER));
+                            return new ManyFieldCriterion(datasource, typeCheckCriteria, resolver, fieldMetadata,
+                                    condition.getRight().accept(VALUE_ADAPTER), condition.getPredicate(),
+                                    leftField.getTypeName());
                         }
                     } else {
                         throw new IllegalStateException("Expected a criteria instance of " + CriteriaImpl.class.getName() + "."); //$NON-NLS-1$ //$NON-NLS-2$
@@ -1459,6 +1463,17 @@ class StandardQueryHandler extends AbstractQueryHandler {
                     Criterion current = null;
                     for (String fieldName : leftFieldCondition.criterionFieldNames) {
                         Criterion newCriterion = le(fieldName, compareValue);
+                        if (current == null) {
+                            current = newCriterion;
+                        } else {
+                            current = or(newCriterion, current);
+                        }
+                    }
+                    return current;
+                } else if (predicate == Predicate.IN) {
+                    Criterion current = null;
+                    for (String fieldName : leftFieldCondition.criterionFieldNames) {
+                        Criterion newCriterion = in(fieldName, (List) compareValue);
                         if (current == null) {
                             current = newCriterion;
                         } else {

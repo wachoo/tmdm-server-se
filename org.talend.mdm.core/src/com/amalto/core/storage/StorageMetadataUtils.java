@@ -25,6 +25,8 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.StringTokenizer;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -316,6 +318,16 @@ public class StorageMetadataUtils {
         }
         return true;
     }
+    
+    @SuppressWarnings("rawtypes")
+    public static boolean isValueAssignable(List value, String typeName) {
+        try {
+            convert(value, typeName);
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
 
     /**
      * Checks whether <code>value</code> is valid for <code>typeName</code>.
@@ -392,7 +404,71 @@ public class StorageMetadataUtils {
             return false;
         }
     }
-    
+
+    @SuppressWarnings("rawtypes")
+    public static boolean isValueAssignable(final List value, FieldMetadata field) {
+        if (value == null) {
+            return true;
+        }
+        try {
+            List<TypeMetadata> fieldType = field.accept(new DefaultMetadataVisitor<List<TypeMetadata>>() {
+                List<TypeMetadata> fieldTypes = new LinkedList<TypeMetadata>();
+
+                @Override
+                public List<TypeMetadata> visit(ReferenceFieldMetadata referenceField) {
+                    fieldTypes.add(MetadataUtils.getSuperConcreteType(referenceField.getReferencedField().getType()));
+                    return fieldTypes;
+                }
+
+                @Override
+                public List<TypeMetadata> visit(SimpleTypeFieldMetadata simpleField) {
+                    fieldTypes.add(MetadataUtils.getSuperConcreteType(simpleField.getType()));
+                    return fieldTypes;
+                }
+
+                @Override
+                public List<TypeMetadata> visit(EnumerationFieldMetadata enumField) {
+                    fieldTypes.add(MetadataUtils.getSuperConcreteType(enumField.getType()));
+                    return fieldTypes;
+                }
+            });
+            List<String> convertValue = field.accept(new DefaultMetadataVisitor<List<String>>() {
+                List<String> values = new LinkedList<String>();
+
+                @SuppressWarnings("unchecked")
+                @Override
+                public List<String> visit(ReferenceFieldMetadata referenceField) {
+                    values.addAll(value);
+                    return values;
+                }
+
+                @SuppressWarnings("unchecked")
+                @Override
+                public List<String> visit(SimpleTypeFieldMetadata simpleField) {
+                    values.addAll(value);
+                    return values;
+                }
+
+                @SuppressWarnings("unchecked")
+                @Override
+                public List<String> visit(EnumerationFieldMetadata enumField) {
+                    values.addAll(value);
+                    return values;
+                }
+            });
+            for (int i = 0; i < fieldType.size(); i++) {
+                try {
+                    convert(convertValue, fieldType.get(i));
+                } catch (Exception e) {
+                    return false;
+                }
+            }
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     /**
      * Checks whether <code>value</code> is valid for full text search.
      * 
@@ -423,6 +499,10 @@ public class StorageMetadataUtils {
      */
     public static Object convert(String dataAsString, FieldMetadata field) {
         return convert(dataAsString, field.getType());
+    }
+    
+    public static Object convert(List<String> dataAsList, FieldMetadata field) {
+        return convert(dataAsList, field.getType());
     }
 
     public static Object convert(String dataAsString, FieldMetadata field, TypeMetadata actualType) {
@@ -491,6 +571,17 @@ public class StorageMetadataUtils {
             return convert(dataAsString, superType.getName());
         }
     }
+    
+    public static Object convert(List<String> dataAsString, TypeMetadata type) {
+        String typeName = type.getName();
+        if (dataAsString == null
+                || (dataAsString.isEmpty() && !Types.STRING.equals(typeName) && !typeName.contains("limitedString"))) { //$NON-NLS-1$
+            return null;
+        } else {
+            TypeMetadata superType = org.talend.mdm.commmon.metadata.MetadataUtils.getSuperConcreteType(type);
+            return convert(dataAsString, superType.getName());
+        }
+    }
 
     public static Object convert(String dataAsString, String type) {
         if (Types.STRING.equals(type) || Types.TOKEN.equals(type) || Types.DURATION.equals(type)) {
@@ -507,7 +598,7 @@ public class StorageMetadataUtils {
                     Date date = dateFormat.parse(dataAsString);
                     return new Timestamp(date.getTime());
                 } catch (Exception e) {
-                    throw new RuntimeException("Could not parse date string", e);
+                    throw new RuntimeException("Could not parse date string", e); //$NON-NLS-1$
                 }
             }
         } else if (Types.DATETIME.equals(type)) {
@@ -518,7 +609,7 @@ public class StorageMetadataUtils {
                     Date date = dateFormat.parse(dataAsString);
                     return new Timestamp(date.getTime());
                 } catch (Exception e) {
-                    throw new RuntimeException("Could not parse date time string", e);
+                    throw new RuntimeException("Could not parse date time string", e); //$NON-NLS-1$
                 }
             }
         } else if (Types.BOOLEAN.equals(type)) {
@@ -530,14 +621,14 @@ public class StorageMetadataUtils {
                 return true;
             }
             if (!"false".equalsIgnoreCase(dataAsString) && !"true".equalsIgnoreCase(dataAsString)) { //$NON-NLS-1$ //$NON-NLS-2$
-                throw new IllegalArgumentException("Value '" + dataAsString + "' is not valid for boolean");
+                throw new IllegalArgumentException("Value '" + dataAsString + "' is not valid for boolean"); //$NON-NLS-1$ //$NON-NLS-2$
             }
             return Boolean.parseBoolean(dataAsString);
         } else if (Types.DECIMAL.equals(type)) {
             try {
                 return new BigDecimal(dataAsString);
             } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("'" + dataAsString + "' is not a number.", e);
+                throw new IllegalArgumentException("'" + dataAsString + "' is not a number.", e); //$NON-NLS-1$ //$NON-NLS-2$
             }
         } else if (Types.FLOAT.equals(type)) {
             return Float.parseFloat(dataAsString);
@@ -565,11 +656,182 @@ public class StorageMetadataUtils {
                     Date date = dateFormat.parse(dataAsString);
                     return new Timestamp(date.getTime());
                 } catch (ParseException e) {
-                    throw new RuntimeException("Could not parse time string", e);
+                    throw new RuntimeException("Could not parse time string", e); //$NON-NLS-1$
                 }
             }
         } else {
-            throw new NotImplementedException("No support for type '" + type + "'");
+            throw new NotImplementedException("No support for type '" + type + "'"); //$NON-NLS-1$ //$NON-NLS-2$
+        }
+    }
+
+    @SuppressWarnings("rawtypes")
+    public static Object convert(List valueList, String type) {
+        if (Types.STRING.equals(type) || Types.TOKEN.equals(type) || Types.DURATION.equals(type)) {
+            return valueList;
+        } else if (Types.INTEGER.equals(type) || Types.POSITIVE_INTEGER.equals(type) || Types.NEGATIVE_INTEGER.equals(type)
+                || Types.NON_NEGATIVE_INTEGER.equals(type) || Types.NON_POSITIVE_INTEGER.equals(type) || Types.INT.equals(type)
+                || Types.UNSIGNED_INT.equals(type)) {
+            CollectionUtils.transform(valueList, new Transformer() {
+                public java.lang.Object transform(java.lang.Object input) {
+                    if (input instanceof String) {
+                        return new Integer((String) input);
+                    } else {
+                        return input;
+                    }
+                }
+            });
+            return valueList;
+        } else if (Types.DATE.equals(type)) {
+            // Be careful here: DateFormat is not thread safe
+            synchronized (DateConstant.DATE_FORMAT) {
+                CollectionUtils.transform(valueList, new Transformer() {
+                    public java.lang.Object transform(java.lang.Object input) {
+                        if (input instanceof String) {
+                            try {
+                                return DateConstant.DATE_FORMAT.parse((String) input);
+                            } catch (ParseException e) {
+                                throw new IllegalArgumentException("Value '" + input.toString() + "' is not valid for Date.", e); //$NON-NLS-1$ //$NON-NLS-2$
+                            }
+                        } else {
+                            return input;
+                        }
+                    }
+                });
+                return valueList;
+            }
+        } else if (Types.DATETIME.equals(type)) {
+            // Be careful here: DateFormat is not thread safe
+            synchronized (DateTimeConstant.DATE_FORMAT) {
+                CollectionUtils.transform(valueList, new Transformer() {
+                    public java.lang.Object transform(java.lang.Object input) {
+                        if (input instanceof String) {
+                            try {
+                                return DateTimeConstant.DATE_FORMAT.parse((String) input);
+                            } catch (ParseException e) {
+                                throw new IllegalArgumentException("Value '" + input.toString() + "' is not valid for Date Time.", e); //$NON-NLS-1$ //$NON-NLS-2$
+                            }
+                        } else {
+                            return input;
+                        }
+                    }
+                });
+                return valueList;
+            }
+        } else if (Types.BOOLEAN.equals(type)) {
+            // Boolean.parseBoolean returns "false" if content isn't a boolean string value. Callers of this method
+            // expect call to fail if data is malformed.
+            CollectionUtils.transform(valueList, new Transformer() {
+                public java.lang.Object transform(java.lang.Object input) {
+                    if (input instanceof String) {
+                        if ("0".equals(input.toString())) { //$NON-NLS-1$
+                            return false;
+                        } else if ("1".equals(input.toString())) { //$NON-NLS-1$
+                            return true;
+                        }
+                        if (!"false".equalsIgnoreCase(input.toString()) && !"true".equalsIgnoreCase(input.toString())) { //$NON-NLS-1$ //$NON-NLS-2$
+                            throw new IllegalArgumentException("Value '" + input.toString() + "' is not valid for Boolean"); //$NON-NLS-1$ //$NON-NLS-2$
+                        }
+                        return Boolean.parseBoolean(input.toString());
+                    } else {
+                        return input;
+                    }
+                }
+            });
+            return valueList;
+        } else if (Types.DECIMAL.equals(type)) {
+            CollectionUtils.transform(valueList, new Transformer() {
+                public java.lang.Object transform(java.lang.Object input) {
+                    if (input instanceof String) {
+                        return new BigDecimal((String) input);
+                    } else {
+                        return input;
+                    }
+                }
+            });
+            return valueList;
+        } else if (Types.FLOAT.equals(type)) {
+            CollectionUtils.transform(valueList, new Transformer() {
+                public java.lang.Object transform(java.lang.Object input) {
+                    if (input instanceof String) {
+                        return Float.parseFloat((String) input);
+                    } else {
+                        return input;
+                    }
+                }
+            });
+            return valueList;
+        } else if (Types.LONG.equals(type) || Types.UNSIGNED_LONG.equals(type)) {
+            CollectionUtils.transform(valueList, new Transformer() {
+                public java.lang.Object transform(java.lang.Object input) {
+                    if (input instanceof String) {
+                        return Long.parseLong((String) input);
+                    } else {
+                        return input;
+                    }
+                }
+            });
+            return valueList;
+        } else if (Types.ANY_URI.equals(type)) {
+            return valueList;
+        } else if (Types.SHORT.equals(type) || Types.UNSIGNED_SHORT.equals(type)) {
+            CollectionUtils.transform(valueList, new Transformer() {
+                public java.lang.Object transform(java.lang.Object input) {
+                    if (input instanceof String) {
+                        return Short.parseShort((String) input);
+                    } else {
+                        return input;
+                    }
+                }
+            });
+            return valueList;
+        } else if (Types.QNAME.equals(type)) {
+            return valueList;
+        } else if (Types.BASE64_BINARY.equals(type)) {
+            return valueList;
+        } else if (Types.HEX_BINARY.equals(type)) {
+            return valueList;
+        } else if (Types.BYTE.equals(type) || Types.UNSIGNED_BYTE.equals(type)) {
+            CollectionUtils.transform(valueList, new Transformer() {
+                public java.lang.Object transform(java.lang.Object input) {
+                    if (input instanceof String) {
+                        return Byte.parseByte((String) input);
+                    } else {
+                        return input;
+                    }
+                }
+            });
+            return valueList;
+        } else if (Types.DOUBLE.equals(type) || Types.UNSIGNED_DOUBLE.equals(type)) {
+            CollectionUtils.transform(valueList, new Transformer() {
+                public java.lang.Object transform(java.lang.Object input) {
+                    if (input instanceof String) {
+                        return Double.parseDouble((String) input);
+                    } else {
+                        return input;
+                    }
+                }
+            });
+            return valueList;
+        } else if (Types.TIME.equals(type)) {
+            // Be careful here: DateFormat is not thread safe
+            synchronized (TimeConstant.TIME_FORMAT) {
+                CollectionUtils.transform(valueList, new Transformer() {
+                    public java.lang.Object transform(java.lang.Object input) {
+                        if (input instanceof String) {
+                            try {
+                                return TimeConstant.TIME_FORMAT.parse((String) input);
+                            } catch (ParseException e) {
+                                throw new IllegalArgumentException("Value '" + input.toString() + "' is not valid for Time.", e); //$NON-NLS-1$ //$NON-NLS-2$
+                            }
+                        } else {
+                            return input;
+                        }
+                    }
+                });
+            }
+            return valueList;
+        } else {
+            throw new NotImplementedException("No support for type '" + type + "'"); //$NON-NLS-1$ //$NON-NLS-2$
         }
     }
 
