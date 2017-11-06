@@ -9,9 +9,14 @@
  */
 package com.amalto.core.util;
 
+import java.lang.reflect.Constructor;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+
 public final class UserHelper {
+
+    private static final Logger LOGGER = Logger.getLogger(UserHelper.class);
 
     private static UserHelper instance;
 
@@ -20,7 +25,19 @@ public final class UserHelper {
     private UserManage um;
 
     private UserHelper(boolean isFromRemote) {
-        um = new UserManageOptimizedImpl(isFromRemote);
+        if (Util.isEnterprise()) {
+            try {
+                Class<?> clazz = Class.forName("com.amalto.core.util.UserManageEnterpriseImpl"); //$NON-NLS-1$
+                Constructor<?> constructor = clazz.getConstructor(boolean.class);
+                um = (UserManage) constructor.newInstance(isFromRemote);
+            } catch (Exception e) {
+                String errorMessage = "Could not create class 'com.amalto.core.util.UserManageEnterpriseImpl'."; //$NON-NLS-1$
+                LOGGER.error(errorMessage);
+                throw new RuntimeException(errorMessage, e);
+            }
+        } else {
+            um = new UserManageOptimizedImpl(isFromRemote);
+        }
     }
 
     public static synchronized UserHelper getInstance() {
