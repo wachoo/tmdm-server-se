@@ -225,6 +225,7 @@ public class ClassRepository extends MetadataRepository {
                                             StringUtils.EMPTY,
                                             fieldType.getName(),
                                             false),
+                                    false, // never be true
                                     Collections.<String>emptyList(),
                                     Collections.<String>emptyList(),
                                     Collections.<String>emptyList(),
