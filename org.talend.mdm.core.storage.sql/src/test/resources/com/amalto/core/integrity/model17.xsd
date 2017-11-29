@@ -5314,7 +5314,6 @@
                             <xsd:appinfo source="X_Write">System_Admin</xsd:appinfo>
                             <xsd:appinfo source="X_Write">RAP_Admin</xsd:appinfo>
                             <xsd:appinfo source="X_Write">RAP_SRC</xsd:appinfo>
-                            <xsd:appinfo source="X_ForeignKey">SiteSoutirageRpd/idSite</xsd:appinfo>
                         </xsd:annotation>
                         <xsd:complexType>
                             <xsd:sequence>
