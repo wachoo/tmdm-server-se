@@ -9,33 +9,42 @@
  */
 package com.amalto.core.audit;
 
-import org.apache.log4j.Logger;
+import java.util.Set;
 
-import com.google.gson.JsonObject;
+import com.amalto.core.objects.role.RolePOJO;
 
-@SuppressWarnings("nls")
 public class MDMAuditLogger {
 
-    private static final Logger LOGGER = Logger.getLogger(MDMAuditLogger.class);
-
     public static void loginSuccess(String userName) {
-        JsonObject object = new JsonObject();
-        object.addProperty("logMessage", "User has logged in successfully");
-        object.addProperty("user", userName);
-        LOGGER.info(object.toString());
     }
 
     public static void loginFail(String userName, Exception ex) {
-        JsonObject object = new JsonObject();
-        object.addProperty("logMessage", "User login attempt failed");
-        object.addProperty("user", userName);
-        LOGGER.info(object.toString());
     }
 
     public static void logoutSuccess(String userName) {
-        JsonObject object = new JsonObject();
-        object.addProperty("logMessage", "User has logged out successfully");
-        object.addProperty("user", userName);
-        LOGGER.info(object.toString());
+    }
+
+    public static void roleCreated(String user, RolePOJO role) {
+    }
+
+    public static void roleCreateOrModifyFail(String user, String roleName, Exception ex) {
+    }
+
+    public static void roleModified(String user, RolePOJO oldRole, RolePOJO newRole) {
+    }
+
+    public static void roleDeleted(String user, String roleName) {
+    }
+
+    public static void roleDeleteFail(String user, String roleName, Exception ex) {
+    }
+
+    public static void userRolesModified(String user, String targetUser, Set<String> oldRoles, Set<String> newRoles) {
+    }
+
+    public static void roleCreateFail(String user, String roleName, Exception ex) {
+    }
+
+    public static void roleModifyFail(String user, String roleName, Exception ex) {
     }
 }
