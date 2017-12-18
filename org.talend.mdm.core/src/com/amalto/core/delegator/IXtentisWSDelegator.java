@@ -225,7 +225,9 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
         String msg = "OK"; //$NON-NLS-1$
         try {
             ILocalUser user = LocalUser.getLocalUser();
+            String userName = user.getUsername();
             user.logout();
+            MDMAuditLogger.logoutSuccess(userName);
         } catch (Exception e) {
             msg = e.getMessage();
         }
