@@ -302,7 +302,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
 
     @Override
     public WSDataModelPK deleteDataModel(WSDeleteDataModel wsDeleteDataModel) throws RemoteException {
-        String user = StringUtils.EMPTY;
+        String user = null;
         try {
             DataModelPOJOPK dataModelPK = Util.getDataModelCtrlLocal()
                     .removeDataModel(new DataModelPOJOPK(wsDeleteDataModel.getWsDataModelPK().getPk()));
@@ -310,14 +310,14 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             MDMAuditLogger.dataModelDeleted(user, dataModelPK.getUniqueId());
             return new WSDataModelPK(dataModelPK.getUniqueId());
         } catch (Exception e) {
-            MDMAuditLogger.dataModelDeleteFail(user, wsDeleteDataModel.getWsDataModelPK().getPk(), e);
+            MDMAuditLogger.dataModelDeletionFailed(user, wsDeleteDataModel.getWsDataModelPK().getPk(), e);
             throw new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
         }
     }
 
     @Override
     public WSDataModelPK putDataModel(WSPutDataModel wsDataModel) throws RemoteException {
-        String user = StringUtils.EMPTY;
+        String user = null;
         Boolean isUpdate = null;
         try {
             user = LocalUser.getLocalUser().getUsername();
@@ -339,11 +339,11 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             return wsDataModelPK;
         } catch (Exception e) {
             if (isUpdate == null) { //If check existence failed
-                MDMAuditLogger.dataModelCreateOrModifyFail(user, wsDataModel.getWsDataModel().getName(), e);
+                MDMAuditLogger.dataModelCreationOrModificationFailed(user, wsDataModel.getWsDataModel().getName(), e);
             } else if (isUpdate) {
-                MDMAuditLogger.dataModelModifyFail(user, wsDataModel.getWsDataModel().getName(), e);
+                MDMAuditLogger.dataModelModificationFailed(user, wsDataModel.getWsDataModel().getName(), e);
             } else if (isUpdate) {
-                MDMAuditLogger.dataModelCreateFail(user, wsDataModel.getWsDataModel().getName(), e);
+                MDMAuditLogger.dataModelCreationFailed(user, wsDataModel.getWsDataModel().getName(), e);
             }
             throw RemoteExceptionFactory.aggregateCauses(e, true);
         }
@@ -572,7 +572,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
 
     @Override
     public WSViewPK deleteView(WSDeleteView wsDeleteView) throws RemoteException {
-        String user = StringUtils.EMPTY;
+        String user = null;
         try {
             user = LocalUser.getLocalUser().getUsername();
             WSViewPK wsViewPK = new WSViewPK(
@@ -581,14 +581,14 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             return wsViewPK;
         } catch (Exception e) {
             RemoteException ex = new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
-            MDMAuditLogger.viewlDeleteFail(user, wsDeleteView.getWsViewPK().getPk(), e);
+            MDMAuditLogger.viewlDeletionFailed(user, wsDeleteView.getWsViewPK().getPk(), e);
             throw ex;
         }
     }
 
     @Override
     public WSViewPK putView(WSPutView wsView) throws RemoteException {
-        String user = StringUtils.EMPTY;
+        String user = null;
         Boolean isUpdate = null;
         try {
             user = LocalUser.getLocalUser().getUsername();
@@ -606,11 +606,11 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
         } catch (Exception e) {
             RemoteException ex = new RemoteException((e.getCause() == null ? e.getLocalizedMessage() : e.getCause().getLocalizedMessage()), e);
             if (isUpdate == null) {// If check existence failed
-                MDMAuditLogger.viewCreateOrModifyFail(user, wsView.getWsView().getName(), ex);
+                MDMAuditLogger.viewCreationOrModificationFailed(user, wsView.getWsView().getName(), ex);
             } else if (isUpdate) {
-                MDMAuditLogger.viewModifyFail(user, wsView.getWsView().getName(), ex);
+                MDMAuditLogger.viewModificationFailed(user, wsView.getWsView().getName(), ex);
             } else {
-                MDMAuditLogger.viewCreateFail(user, wsView.getWsView().getName(), ex);
+                MDMAuditLogger.viewCreationFailed(user, wsView.getWsView().getName(), ex);
             }
             throw ex;
         }
@@ -2487,7 +2487,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
 
     @Override
     public WSRolePK putRole(WSPutRole wsRole) throws RemoteException {
-        String user = StringUtils.EMPTY;
+        String user = null;
         Boolean isUpdate = null;
         try {
             user = LocalUser.getLocalUser().getUsername();
@@ -2509,11 +2509,11 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
                 LOGGER.debug(e.getMessage(), e);
             }
             if (isUpdate == null) {// If check existence failed
-                MDMAuditLogger.roleCreateOrModifyFail(user, wsRole.getWsRole().getName(), e);
+                MDMAuditLogger.roleCreationOrModificationFailed(user, wsRole.getWsRole().getName(), e);
             } else if (isUpdate) {
-                MDMAuditLogger.roleModifyFail(user, wsRole.getWsRole().getName(), e);
+                MDMAuditLogger.roleModificationFailed(user, wsRole.getWsRole().getName(), e);
             } else {
-                MDMAuditLogger.roleCreateFail(user, wsRole.getWsRole().getName(), e);
+                MDMAuditLogger.roleCreationFailed(user, wsRole.getWsRole().getName(), e);
             }
             throw new RemoteException(e.getLocalizedMessage(), e);
         }
@@ -2521,7 +2521,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
 
     @Override
     public WSRolePK deleteRole(WSDeleteRole wsRoleDelete) throws RemoteException {
-        String user = StringUtils.EMPTY;
+        String user = null;
         try {
             user = LocalUser.getLocalUser().getUsername();
             Role ctrl = Util.getRoleCtrlLocal();
@@ -2529,7 +2529,7 @@ public abstract class IXtentisWSDelegator implements IBeanDelegator, XtentisPort
             MDMAuditLogger.roleDeleted(user, wsRoleDelete.getWsRolePK().getPk());
             return wsRolePK;
         } catch (Exception e) {
-            MDMAuditLogger.roleDeleteFail(user, wsRoleDelete.getWsRolePK().getPk(), e);
+            MDMAuditLogger.roleDeletionFailed(user, wsRoleDelete.getWsRolePK().getPk(), e);
             throw new RemoteException(e.getLocalizedMessage(), e);
         }
     }
