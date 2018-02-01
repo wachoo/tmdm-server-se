@@ -37,11 +37,11 @@ public class FileChunkLoaderTest {
             if (position == 0) {
                 String result = baos.toString();
                 assertTrue(result.endsWith("Service (JTA version) - JBoss Inc.\r\n"));
-                assertEquals(240, chunkInfo.nextPosition);
+                assertEquals(238, chunkInfo.nextPosition);
             }
             position = chunkInfo.nextPosition;
         }
-        assertEquals(2427, chunkInfo.nextPosition);
+        assertEquals(2406, chunkInfo.nextPosition);
         assertEquals(1, chunkInfo.lines); // last line does not contains '\n'
         String result = baos.toString();
         assertTrue(result.endsWith("startup in 34 ms"));
@@ -55,20 +55,20 @@ public class FileChunkLoaderTest {
         //
         baos.reset();
         chunkInfo = loader.loadChunkTo(baos, 0, 100);
-        assertEquals(2427, chunkInfo.nextPosition);
+        assertEquals(2406, chunkInfo.nextPosition);
         assertEquals(21, chunkInfo.lines);
 
         // tail
         baos.reset();
         chunkInfo = loader.loadChunkTo(baos, -1, 10);
-        assertEquals(2427, chunkInfo.nextPosition);
+        assertEquals(2406, chunkInfo.nextPosition);
         assertEquals(6, chunkInfo.lines);
         assertTrue(result.endsWith("startup in 34 ms"));
 
         // tail
         baos.reset();
         chunkInfo = loader.loadChunkTo(baos, -1, 100);
-        assertEquals(2427, chunkInfo.nextPosition);
+        assertEquals(2406, chunkInfo.nextPosition);
         assertEquals(21, chunkInfo.lines);
     }
 
