@@ -22,6 +22,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.log4j.Logger;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
+import org.talend.mdm.webapp.base.shared.Constants;
 import org.talend.mdm.webapp.general.model.GroupItem;
 import org.talend.mdm.webapp.general.model.LanguageBean;
 import org.talend.mdm.webapp.general.model.MenuBean;
@@ -54,7 +55,9 @@ public class Utils {
 
     private static final Logger LOG = Logger.getLogger(Utils.class);
 
-    private static final String WELCOMECONTEXT = "welcomeportal", WELCOMEAPP = "WelcomePortal";//$NON-NLS-1$ //$NON-NLS-2$
+    private static final String WELCOMECONTEXT = "welcomeportal"; // $NON-NLS-2$
+
+    private static final String WELCOMEAPP = "WelcomePortal"; //$NON-NLS-1$
 
     private static final String DEFAULT_LANG = "en"; //$NON-NLS-1$
 
@@ -174,10 +177,12 @@ public class Utils {
                 String gxtEntryModule = GxtFactory.getInstance().getGxtEntryModule(context, application);
                 if (gxtEntryModule == null) {
                     // Other Application, direct js
-                    String tmp = "<script type=\"text/javascript\" src=\"secure/js/" //$NON-NLS-1$
-                            + application + ".js\"></script>\n"; //$NON-NLS-1$
-                    if (!imports.contains(tmp)) {
-                        imports.add(tmp);
+                    if (!(Constants.TDS_CONTEXT.equals(context) && Constants.TDS_APP.equals(application))) {
+                        String tmp = "<script type=\"text/javascript\" src=\"secure/js/" //$NON-NLS-1$
+                                + application + ".js\"></script>\n"; //$NON-NLS-1$
+                        if (!imports.contains(tmp)) {
+                            imports.add(tmp);
+                        }
                     }
                 } else {
                     String tmp = "<script type=\"text/javascript\" src=\"" + gxtEntryModule + "/" //$NON-NLS-1$ //$NON-NLS-2$ 
