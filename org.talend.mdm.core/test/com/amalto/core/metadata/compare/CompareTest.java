@@ -368,9 +368,9 @@ public class CompareTest extends TestCase {
 
         ImpactAnalyzer analyzer = new HibernateStorageImpactAnalyzer();
         Map<ImpactAnalyzer.Impact, List<Change>> sort = analyzer.analyzeImpacts(diffResults);
-        assertEquals(4, sort.get(ImpactAnalyzer.Impact.HIGH).size());
+        assertEquals(3, sort.get(ImpactAnalyzer.Impact.HIGH).size());
         assertEquals(0, sort.get(ImpactAnalyzer.Impact.MEDIUM).size());
-        assertEquals(2, sort.get(ImpactAnalyzer.Impact.LOW).size());
+        assertEquals(3, sort.get(ImpactAnalyzer.Impact.LOW).size());
     }
     
     public void test17() throws Exception {
@@ -864,6 +864,592 @@ public class CompareTest extends TestCase {
         assertEquals(20, sort.get(ImpactAnalyzer.Impact.HIGH).size());
         assertEquals(5, sort.get(ImpactAnalyzer.Impact.MEDIUM).size());
         assertEquals(0, sort.get(ImpactAnalyzer.Impact.LOW).size());
+    }
+
+    public void test31_addOptionalComplexField_non_anonymous_1() throws Exception {
+        /*
+         * Entity                                             Entity
+         *   |__id (SimpleField) (1-1)    ===========>           |__id (SimpleField) (1-1)
+         *                                                       |__do-non-anonymous (ComplexType) (0-1)
+         *                                                          |__do-subelement (SimpleField) (0-1)
+         */
+        MetadataRepository original = new MetadataRepository();
+        original.load(CompareTest.class.getResourceAsStream("schema31_1.xsd")); //$NON-NLS-1$
+        original = original.copy();
+        MetadataRepository updated2 = new MetadataRepository();
+        updated2.load(CompareTest.class.getResourceAsStream("schema31_na_1.xsd")); //$NON-NLS-1$
+        Compare.DiffResults diffResults = Compare.compare(original, updated2);
+        assertEquals(4, diffResults.getActions().size());
+        assertEquals(0, diffResults.getModifyChanges().size());
+        assertEquals(0, diffResults.getRemoveChanges().size());
+        assertEquals(4, diffResults.getAddChanges().size());
+
+        ImpactAnalyzer analyzer = new HibernateStorageImpactAnalyzer();
+        Map<ImpactAnalyzer.Impact, List<Change>> sort = analyzer.analyzeImpacts(diffResults);
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.HIGH).size());
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.MEDIUM).size());
+        assertEquals(4, sort.get(ImpactAnalyzer.Impact.LOW).size());
+    }
+
+    public void test31_addOptionalComplexField_non_anonymous_2() throws Exception {
+        /*
+         * Entity                                             Entity
+         *   |__id (SimpleField) (1-1)    ===========>           |__id (SimpleField) (1-1)
+         *                                                       |__do-non-anonymous (ComplexType) (0-1)
+         *                                                          |__do-subelement (SimpleField) (1-1)
+         */
+        MetadataRepository original = new MetadataRepository();
+        original.load(CompareTest.class.getResourceAsStream("schema31_1.xsd")); //$NON-NLS-1$
+        original = original.copy();
+        MetadataRepository updated2 = new MetadataRepository();
+        updated2.load(CompareTest.class.getResourceAsStream("schema31_na_2.xsd")); //$NON-NLS-1$
+        Compare.DiffResults diffResults = Compare.compare(original, updated2);
+        assertEquals(4, diffResults.getActions().size());
+        assertEquals(0, diffResults.getModifyChanges().size());
+        assertEquals(0, diffResults.getRemoveChanges().size());
+        assertEquals(4, diffResults.getAddChanges().size());
+
+        ImpactAnalyzer analyzer = new HibernateStorageImpactAnalyzer();
+        Map<ImpactAnalyzer.Impact, List<Change>> sort = analyzer.analyzeImpacts(diffResults);
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.HIGH).size());
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.MEDIUM).size());
+        assertEquals(4, sort.get(ImpactAnalyzer.Impact.LOW).size());
+    }
+
+    public void test31_addOptionalComplexField_non_anonymous_3() throws Exception {
+        /*
+         * Entity                                             Entity
+         *   |__id (SimpleField) (1-1)    ===========>           |__id (SimpleField) (1-1)
+         *                                                       |__do-non-anonymous (ComplexType) (0-many)
+         *                                                          |__do-subelement (SimpleField) (0-1)
+         */
+        MetadataRepository original = new MetadataRepository();
+        original.load(CompareTest.class.getResourceAsStream("schema31_1.xsd")); //$NON-NLS-1$
+        original = original.copy();
+        MetadataRepository updated2 = new MetadataRepository();
+        updated2.load(CompareTest.class.getResourceAsStream("schema31_na_3.xsd")); //$NON-NLS-1$
+        Compare.DiffResults diffResults = Compare.compare(original, updated2);
+        assertEquals(4, diffResults.getActions().size());
+        assertEquals(0, diffResults.getModifyChanges().size());
+        assertEquals(0, diffResults.getRemoveChanges().size());
+        assertEquals(4, diffResults.getAddChanges().size());
+
+        ImpactAnalyzer analyzer = new HibernateStorageImpactAnalyzer();
+        Map<ImpactAnalyzer.Impact, List<Change>> sort = analyzer.analyzeImpacts(diffResults);
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.HIGH).size());
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.MEDIUM).size());
+        assertEquals(4, sort.get(ImpactAnalyzer.Impact.LOW).size());
+    }
+
+    public void test31_addOptionalComplexField_non_anonymous_4() throws Exception {
+        /*
+         * Entity                                             Entity
+         *   |__id (SimpleField) (1-1)    ===========>           |__id (SimpleField) (1-1)
+         *                                                       |__do-non-anonymous (ComplexType) (0-many)
+         *                                                          |__do-subelement (SimpleField) (1-1)
+         */
+        MetadataRepository original = new MetadataRepository();
+        original.load(CompareTest.class.getResourceAsStream("schema31_1.xsd")); //$NON-NLS-1$
+        original = original.copy();
+        MetadataRepository updated2 = new MetadataRepository();
+        updated2.load(CompareTest.class.getResourceAsStream("schema31_na_4.xsd")); //$NON-NLS-1$
+        Compare.DiffResults diffResults = Compare.compare(original, updated2);
+        assertEquals(4, diffResults.getActions().size());
+        assertEquals(0, diffResults.getModifyChanges().size());
+        assertEquals(0, diffResults.getRemoveChanges().size());
+        assertEquals(4, diffResults.getAddChanges().size());
+
+        ImpactAnalyzer analyzer = new HibernateStorageImpactAnalyzer();
+        Map<ImpactAnalyzer.Impact, List<Change>> sort = analyzer.analyzeImpacts(diffResults);
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.HIGH).size());
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.MEDIUM).size());
+        assertEquals(4, sort.get(ImpactAnalyzer.Impact.LOW).size());
+    }
+
+    public void test31_addOptionalComplexField_non_anonymous_5() throws Exception {
+        /*
+         * Entity                                             Entity
+         *   |__id (SimpleField) (1-1)    ===========>           |__id (SimpleField) (1-1)
+         *                                                       |__do-non-anonymous (ComplexType) (0-1)
+         *                                                          |__do-subelement (SimpleField) (1-1)
+         *                                                          |__bb-anonymous (ComplexType) (0-1)
+         *                                                             |__bb-subelement (SimpleField) (0-1)
+         */
+        MetadataRepository original = new MetadataRepository();
+        original.load(CompareTest.class.getResourceAsStream("schema31_1.xsd")); //$NON-NLS-1$
+        original = original.copy();
+        MetadataRepository updated2 = new MetadataRepository();
+        updated2.load(CompareTest.class.getResourceAsStream("schema31_na_5.xsd")); //$NON-NLS-1$
+        Compare.DiffResults diffResults = Compare.compare(original, updated2);
+        assertEquals(7, diffResults.getActions().size());
+        assertEquals(0, diffResults.getModifyChanges().size());
+        assertEquals(0, diffResults.getRemoveChanges().size());
+        assertEquals(7, diffResults.getAddChanges().size());
+
+        ImpactAnalyzer analyzer = new HibernateStorageImpactAnalyzer();
+        Map<ImpactAnalyzer.Impact, List<Change>> sort = analyzer.analyzeImpacts(diffResults);
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.HIGH).size());
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.MEDIUM).size());
+        assertEquals(7, sort.get(ImpactAnalyzer.Impact.LOW).size());
+    }
+
+    public void test31_addOptionalComplexField_non_anonymous_6() throws Exception {
+        /*
+         * Entity                                             Entity
+         *   |__id (SimpleField) (1-1)    ===========>           |__id (SimpleField) (1-1)
+         *                                                       |__do-non-anonymous (ComplexType) (0-1)
+         *                                                          |__do-subelement (SimpleField) (1-1)
+         *                                                          |__bb-anonymous (ComplexType) (0-1)
+         *                                                             |__bb-subelement (SimpleField) (1-1)
+         */
+        MetadataRepository original = new MetadataRepository();
+        original.load(CompareTest.class.getResourceAsStream("schema31_1.xsd")); //$NON-NLS-1$
+        original = original.copy();
+        MetadataRepository updated2 = new MetadataRepository();
+        updated2.load(CompareTest.class.getResourceAsStream("schema31_na_6.xsd")); //$NON-NLS-1$
+        Compare.DiffResults diffResults = Compare.compare(original, updated2);
+        assertEquals(7, diffResults.getActions().size());
+        assertEquals(0, diffResults.getModifyChanges().size());
+        assertEquals(0, diffResults.getRemoveChanges().size());
+        assertEquals(7, diffResults.getAddChanges().size());
+
+        ImpactAnalyzer analyzer = new HibernateStorageImpactAnalyzer();
+        Map<ImpactAnalyzer.Impact, List<Change>> sort = analyzer.analyzeImpacts(diffResults);
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.HIGH).size());
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.MEDIUM).size());
+        assertEquals(7, sort.get(ImpactAnalyzer.Impact.LOW).size());
+    }
+
+    public void test31_addOptionalComplexField_non_anonymous_7() throws Exception {
+        /*
+         * Entity                                             Entity
+         *   |__id (SimpleField) (1-1)    ===========>           |__id (SimpleField) (1-1)
+         *                                                       |__do-non-anonymous (ComplexType) (0-1)
+         *                                                          |__do-subelement (SimpleField) (1-1)
+         *                                                          |__bb-non-anonymous (ComplexType) (0-1)
+         *                                                             |__bb-subelement (SimpleField) (0-1)
+         */
+        MetadataRepository original = new MetadataRepository();
+        original.load(CompareTest.class.getResourceAsStream("schema31_1.xsd")); //$NON-NLS-1$
+        original = original.copy();
+        MetadataRepository updated2 = new MetadataRepository();
+        updated2.load(CompareTest.class.getResourceAsStream("schema31_na_7.xsd")); //$NON-NLS-1$
+        Compare.DiffResults diffResults = Compare.compare(original, updated2);
+        assertEquals(8, diffResults.getActions().size());
+        assertEquals(0, diffResults.getModifyChanges().size());
+        assertEquals(0, diffResults.getRemoveChanges().size());
+        assertEquals(8, diffResults.getAddChanges().size());
+
+        ImpactAnalyzer analyzer = new HibernateStorageImpactAnalyzer();
+        Map<ImpactAnalyzer.Impact, List<Change>> sort = analyzer.analyzeImpacts(diffResults);
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.HIGH).size());
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.MEDIUM).size());
+        assertEquals(8, sort.get(ImpactAnalyzer.Impact.LOW).size());
+    }
+
+    public void test31_addOptionalComplexField_non_anonymous_8() throws Exception {
+        /*
+         * Entity                                             Entity
+         *   |__id (SimpleField) (1-1)    ===========>           |__id (SimpleField) (1-1)
+         *                                                       |__do-non-anonymous (ComplexType) (0-1)
+         *                                                          |__do-subelement (SimpleField) (1-1)
+         *                                                          |__bb-non-anonymous (ComplexType) (0-1)
+         *                                                             |__bb-subelement (SimpleField) (1-1)
+         */
+        MetadataRepository original = new MetadataRepository();
+        original.load(CompareTest.class.getResourceAsStream("schema31_1.xsd")); //$NON-NLS-1$
+        original = original.copy();
+        MetadataRepository updated2 = new MetadataRepository();
+        updated2.load(CompareTest.class.getResourceAsStream("schema31_na_8.xsd")); //$NON-NLS-1$
+        Compare.DiffResults diffResults = Compare.compare(original, updated2);
+        assertEquals(8, diffResults.getActions().size());
+        assertEquals(0, diffResults.getModifyChanges().size());
+        assertEquals(0, diffResults.getRemoveChanges().size());
+        assertEquals(8, diffResults.getAddChanges().size());
+
+        ImpactAnalyzer analyzer = new HibernateStorageImpactAnalyzer();
+        Map<ImpactAnalyzer.Impact, List<Change>> sort = analyzer.analyzeImpacts(diffResults);
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.HIGH).size());
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.MEDIUM).size());
+        assertEquals(8, sort.get(ImpactAnalyzer.Impact.LOW).size());
+    }
+
+    public void test31_addOptionalComplexField_non_anonymous_9() throws Exception {
+        /*
+         * Entity                                             Entity
+         *   |__id (SimpleField) (1-1)    ===========>           |__id (SimpleField) (1-1)
+         *                                                       |__do-non-anonymous (ComplexType) (0-1)
+         *                                                          |__do-subelement (SimpleField) (1-1)
+         *                                                          |__bb-non-anonymous (ComplexType) (1-1)
+         *                                                             |__bb-subelement (SimpleField) (0-1)
+         */
+        MetadataRepository original = new MetadataRepository();
+        original.load(CompareTest.class.getResourceAsStream("schema31_1.xsd")); //$NON-NLS-1$
+        original = original.copy();
+        MetadataRepository updated2 = new MetadataRepository();
+        updated2.load(CompareTest.class.getResourceAsStream("schema31_na_9.xsd")); //$NON-NLS-1$
+        Compare.DiffResults diffResults = Compare.compare(original, updated2);
+        assertEquals(8, diffResults.getActions().size());
+        assertEquals(0, diffResults.getModifyChanges().size());
+        assertEquals(0, diffResults.getRemoveChanges().size());
+        assertEquals(8, diffResults.getAddChanges().size());
+
+        ImpactAnalyzer analyzer = new HibernateStorageImpactAnalyzer();
+        Map<ImpactAnalyzer.Impact, List<Change>> sort = analyzer.analyzeImpacts(diffResults);
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.HIGH).size());
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.MEDIUM).size());
+        assertEquals(8, sort.get(ImpactAnalyzer.Impact.LOW).size());
+    }
+
+    public void test31_addOptionalComplexField_non_anonymous_10() throws Exception {
+        /*
+         * Entity                                             Entity
+         *   |__id (SimpleField) (1-1)    ===========>           |__id (SimpleField) (1-1)
+         *                                                       |__do-non-anonymous (ComplexType) (0-1)
+         *                                                          |__do-subelement (SimpleField) (1-1)
+         *                                                          |__bb-anonymous (ComplexType) (1-1)
+         *                                                             |__bb-subelement (SimpleField) (0-1)
+         */
+        MetadataRepository original = new MetadataRepository();
+        original.load(CompareTest.class.getResourceAsStream("schema31_1.xsd")); //$NON-NLS-1$
+        original = original.copy();
+        MetadataRepository updated2 = new MetadataRepository();
+        updated2.load(CompareTest.class.getResourceAsStream("schema31_na_10.xsd")); //$NON-NLS-1$
+        Compare.DiffResults diffResults = Compare.compare(original, updated2);
+        assertEquals(7, diffResults.getActions().size());
+        assertEquals(0, diffResults.getModifyChanges().size());
+        assertEquals(0, diffResults.getRemoveChanges().size());
+        assertEquals(7, diffResults.getAddChanges().size());
+
+        ImpactAnalyzer analyzer = new HibernateStorageImpactAnalyzer();
+        Map<ImpactAnalyzer.Impact, List<Change>> sort = analyzer.analyzeImpacts(diffResults);
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.HIGH).size());
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.MEDIUM).size());
+        assertEquals(7, sort.get(ImpactAnalyzer.Impact.LOW).size());
+    }
+
+    public void test31_addOptionalComplexField_anonymous_1() throws Exception {
+        /*
+         * Entity                                             Entity
+         *   |__id (SimpleField) (1-1)    ===========>           |__id (SimpleField) (1-1)
+         *                                                       |__do-anonymous (ComplexType) (0-1)
+         *                                                          |__do-subelement (SimpleField) (0-1)
+         */
+        MetadataRepository original = new MetadataRepository();
+        original.load(CompareTest.class.getResourceAsStream("schema31_1.xsd")); //$NON-NLS-1$
+        original = original.copy();
+        MetadataRepository updated2 = new MetadataRepository();
+        updated2.load(CompareTest.class.getResourceAsStream("schema31_a_1.xsd")); //$NON-NLS-1$
+        Compare.DiffResults diffResults = Compare.compare(original, updated2);
+        assertEquals(3, diffResults.getActions().size());
+        assertEquals(0, diffResults.getModifyChanges().size());
+        assertEquals(0, diffResults.getRemoveChanges().size());
+        assertEquals(3, diffResults.getAddChanges().size());
+
+        ImpactAnalyzer analyzer = new HibernateStorageImpactAnalyzer();
+        Map<ImpactAnalyzer.Impact, List<Change>> sort = analyzer.analyzeImpacts(diffResults);
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.HIGH).size());
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.MEDIUM).size());
+        assertEquals(3, sort.get(ImpactAnalyzer.Impact.LOW).size());
+    }
+
+    public void test31_addOptionalComplexField_anonymous_2() throws Exception {
+        /*
+         * Entity                                             Entity
+         *   |__id (SimpleField) (1-1)    ===========>           |__id (SimpleField) (1-1)
+         *                                                       |__do-anonymous (ComplexType) (0-1)
+         *                                                          |__do-subelement (SimpleField) (1-1)
+         */
+        MetadataRepository original = new MetadataRepository();
+        original.load(CompareTest.class.getResourceAsStream("schema31_1.xsd")); //$NON-NLS-1$
+        original = original.copy();
+        MetadataRepository updated2 = new MetadataRepository();
+        updated2.load(CompareTest.class.getResourceAsStream("schema31_a_2.xsd")); //$NON-NLS-1$
+        Compare.DiffResults diffResults = Compare.compare(original, updated2);
+        assertEquals(3, diffResults.getActions().size());
+        assertEquals(0, diffResults.getModifyChanges().size());
+        assertEquals(0, diffResults.getRemoveChanges().size());
+        assertEquals(3, diffResults.getAddChanges().size());
+
+        ImpactAnalyzer analyzer = new HibernateStorageImpactAnalyzer();
+        Map<ImpactAnalyzer.Impact, List<Change>> sort = analyzer.analyzeImpacts(diffResults);
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.HIGH).size());
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.MEDIUM).size());
+        assertEquals(3, sort.get(ImpactAnalyzer.Impact.LOW).size());
+    }
+
+    public void test31_addOptionalComplexField_anonymous_3() throws Exception {
+        /*
+         * Entity                                             Entity
+         *   |__id (SimpleField) (1-1)    ===========>           |__id (SimpleField) (1-1)
+         *                                                       |__do-anonymous (ComplexType) (0-many)
+         *                                                          |__do-subelement (SimpleField) (0-1)
+         */
+
+        MetadataRepository original = new MetadataRepository();
+        original.load(CompareTest.class.getResourceAsStream("schema31_1.xsd")); //$NON-NLS-1$
+        original = original.copy();
+        MetadataRepository updated2 = new MetadataRepository();
+        updated2.load(CompareTest.class.getResourceAsStream("schema31_a_3.xsd")); //$NON-NLS-1$
+        Compare.DiffResults diffResults = Compare.compare(original, updated2);
+        assertEquals(3, diffResults.getActions().size());
+        assertEquals(0, diffResults.getModifyChanges().size());
+        assertEquals(0, diffResults.getRemoveChanges().size());
+        assertEquals(3, diffResults.getAddChanges().size());
+
+        ImpactAnalyzer analyzer = new HibernateStorageImpactAnalyzer();
+        Map<ImpactAnalyzer.Impact, List<Change>> sort = analyzer.analyzeImpacts(diffResults);
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.HIGH).size());
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.MEDIUM).size());
+        assertEquals(3, sort.get(ImpactAnalyzer.Impact.LOW).size());
+    }
+
+    public void test31_addOptionalComplexField_anonymous_4() throws Exception {
+        /*
+         * Entity                                             Entity
+         *   |__id (SimpleField) (1-1)    ===========>           |__id (SimpleField) (1-1)
+         *                                                       |__do-anonymous (ComplexType) (0-many)
+         *                                                          |__do-subelement (SimpleField) (1-1)
+         */
+
+        MetadataRepository original = new MetadataRepository();
+        original.load(CompareTest.class.getResourceAsStream("schema31_1.xsd")); //$NON-NLS-1$
+        original = original.copy();
+        MetadataRepository updated2 = new MetadataRepository();
+        updated2.load(CompareTest.class.getResourceAsStream("schema31_a_4.xsd")); //$NON-NLS-1$
+        Compare.DiffResults diffResults = Compare.compare(original, updated2);
+        assertEquals(3, diffResults.getActions().size());
+        assertEquals(0, diffResults.getModifyChanges().size());
+        assertEquals(0, diffResults.getRemoveChanges().size());
+        assertEquals(3, diffResults.getAddChanges().size());
+
+        ImpactAnalyzer analyzer = new HibernateStorageImpactAnalyzer();
+        Map<ImpactAnalyzer.Impact, List<Change>> sort = analyzer.analyzeImpacts(diffResults);
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.HIGH).size());
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.MEDIUM).size());
+        assertEquals(3, sort.get(ImpactAnalyzer.Impact.LOW).size());
+    }
+
+    public void test31_addOptionalComplexField_anonymous_5() throws Exception {
+        /*
+         * Entity                                             Entity
+         *   |__id (SimpleField) (1-1)    ===========>           |__id (SimpleField) (1-1)
+         *                                                       |__do-anonymous (ComplexType) (0-1)
+         *                                                          |__do-subelement (SimpleField) (1-1)
+         *                                                          |__bb-anonymous (ComplexType) (0-1)
+         *                                                             |__bb-subelement (SimpleField) (0-1)
+         */
+
+        MetadataRepository original = new MetadataRepository();
+        original.load(CompareTest.class.getResourceAsStream("schema31_1.xsd")); //$NON-NLS-1$
+        original = original.copy();
+        MetadataRepository updated2 = new MetadataRepository();
+        updated2.load(CompareTest.class.getResourceAsStream("schema31_a_5.xsd")); //$NON-NLS-1$
+        Compare.DiffResults diffResults = Compare.compare(original, updated2);
+        assertEquals(6, diffResults.getActions().size());
+        assertEquals(0, diffResults.getModifyChanges().size());
+        assertEquals(0, diffResults.getRemoveChanges().size());
+        assertEquals(6, diffResults.getAddChanges().size());
+
+        ImpactAnalyzer analyzer = new HibernateStorageImpactAnalyzer();
+        Map<ImpactAnalyzer.Impact, List<Change>> sort = analyzer.analyzeImpacts(diffResults);
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.HIGH).size());
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.MEDIUM).size());
+        assertEquals(6, sort.get(ImpactAnalyzer.Impact.LOW).size());
+    }
+
+    public void test31_addOptionalComplexField_anonymous_6() throws Exception {
+        /*
+         * Entity                                             Entity
+         *   |__id (SimpleField) (1-1)    ===========>           |__id (SimpleField) (1-1)
+         *                                                       |__do-anonymous (ComplexType) (0-1)
+         *                                                          |__do-subelement (SimpleField) (1-1)
+         *                                                          |__bb-anonymous (ComplexType) (0-1)
+         *                                                             |__bb-subelement (SimpleField) (1-1)
+         */
+
+        MetadataRepository original = new MetadataRepository();
+        original.load(CompareTest.class.getResourceAsStream("schema31_1.xsd")); //$NON-NLS-1$
+        original = original.copy();
+        MetadataRepository updated2 = new MetadataRepository();
+        updated2.load(CompareTest.class.getResourceAsStream("schema31_a_6.xsd")); //$NON-NLS-1$
+        Compare.DiffResults diffResults = Compare.compare(original, updated2);
+        assertEquals(6, diffResults.getActions().size());
+        assertEquals(0, diffResults.getModifyChanges().size());
+        assertEquals(0, diffResults.getRemoveChanges().size());
+        assertEquals(6, diffResults.getAddChanges().size());
+
+        ImpactAnalyzer analyzer = new HibernateStorageImpactAnalyzer();
+        Map<ImpactAnalyzer.Impact, List<Change>> sort = analyzer.analyzeImpacts(diffResults);
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.HIGH).size());
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.MEDIUM).size());
+        assertEquals(6, sort.get(ImpactAnalyzer.Impact.LOW).size());
+    }
+
+    public void test31_addOptionalComplexField_anonymous_7() throws Exception {
+        /*
+         * Entity                                             Entity
+         *   |__id (SimpleField) (1-1)    ===========>           |__id (SimpleField) (1-1)
+         *                                                       |__do-anonymous (ComplexType) (0-1)
+         *                                                          |__do-subelement (SimpleField) (1-1)
+         *                                                          |__bb-non-anonymous (ComplexType) (0-1)
+         *                                                             |__bb-subelement (SimpleField) (0-1)
+         */
+
+        MetadataRepository original = new MetadataRepository();
+        original.load(CompareTest.class.getResourceAsStream("schema31_1.xsd")); //$NON-NLS-1$
+        original = original.copy();
+        MetadataRepository updated2 = new MetadataRepository();
+        updated2.load(CompareTest.class.getResourceAsStream("schema31_a_7.xsd")); //$NON-NLS-1$
+        Compare.DiffResults diffResults = Compare.compare(original, updated2);
+        assertEquals(7, diffResults.getActions().size());
+        assertEquals(0, diffResults.getModifyChanges().size());
+        assertEquals(0, diffResults.getRemoveChanges().size());
+        assertEquals(7, diffResults.getAddChanges().size());
+
+        ImpactAnalyzer analyzer = new HibernateStorageImpactAnalyzer();
+        Map<ImpactAnalyzer.Impact, List<Change>> sort = analyzer.analyzeImpacts(diffResults);
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.HIGH).size());
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.MEDIUM).size());
+        assertEquals(7, sort.get(ImpactAnalyzer.Impact.LOW).size());
+    }
+
+    public void test31_addOptionalComplexField_anonymous_8() throws Exception {
+        /*
+         * Entity                                             Entity
+         *   |__id (SimpleField) (1-1)    ===========>           |__id (SimpleField) (1-1)
+         *                                                       |__do-anonymous (ComplexType) (0-1)
+         *                                                          |__do-subelement (SimpleField) (1-1)
+         *                                                          |__bb-non-anonymous (ComplexType) (0-1)
+         *                                                             |__bb-subelement (SimpleField) (1-1)
+         */
+
+        MetadataRepository original = new MetadataRepository();
+        original.load(CompareTest.class.getResourceAsStream("schema31_1.xsd")); //$NON-NLS-1$
+        original = original.copy();
+        MetadataRepository updated2 = new MetadataRepository();
+        updated2.load(CompareTest.class.getResourceAsStream("schema31_a_8.xsd")); //$NON-NLS-1$
+        Compare.DiffResults diffResults = Compare.compare(original, updated2);
+        assertEquals(7, diffResults.getActions().size());
+        assertEquals(0, diffResults.getModifyChanges().size());
+        assertEquals(0, diffResults.getRemoveChanges().size());
+        assertEquals(7, diffResults.getAddChanges().size());
+
+        ImpactAnalyzer analyzer = new HibernateStorageImpactAnalyzer();
+        Map<ImpactAnalyzer.Impact, List<Change>> sort = analyzer.analyzeImpacts(diffResults);
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.HIGH).size());
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.MEDIUM).size());
+        assertEquals(7, sort.get(ImpactAnalyzer.Impact.LOW).size());
+    }
+
+    public void test31_addOptionalComplexField_anonymous_9() throws Exception {
+        /*
+         * Entity                                             Entity
+         *   |__id (SimpleField) (1-1)    ===========>           |__id (SimpleField) (1-1)
+         *                                                       |__do-anonymous (ComplexType) (0-1)
+         *                                                          |__do-subelement (SimpleField) (1-1)
+         *                                                          |__bb-non-anonymous (ComplexType) (1-1)
+         *                                                             |__bb-subelement (SimpleField) (0-1)
+         */
+
+        MetadataRepository original = new MetadataRepository();
+        original.load(CompareTest.class.getResourceAsStream("schema31_1.xsd")); //$NON-NLS-1$
+        original = original.copy();
+        MetadataRepository updated2 = new MetadataRepository();
+        updated2.load(CompareTest.class.getResourceAsStream("schema31_a_9.xsd")); //$NON-NLS-1$
+        Compare.DiffResults diffResults = Compare.compare(original, updated2);
+        assertEquals(7, diffResults.getActions().size());
+        assertEquals(0, diffResults.getModifyChanges().size());
+        assertEquals(0, diffResults.getRemoveChanges().size());
+        assertEquals(7, diffResults.getAddChanges().size());
+
+        ImpactAnalyzer analyzer = new HibernateStorageImpactAnalyzer();
+        Map<ImpactAnalyzer.Impact, List<Change>> sort = analyzer.analyzeImpacts(diffResults);
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.HIGH).size());
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.MEDIUM).size());
+        assertEquals(7, sort.get(ImpactAnalyzer.Impact.LOW).size());
+    }
+
+    public void test31_addOptionalComplexField_anonymous_10() throws Exception {
+        /*
+         * Entity                                             Entity
+         *   |__id (SimpleField) (1-1)    ===========>           |__id (SimpleField) (1-1)
+         *                                                       |__do-anonymous (ComplexType) (0-1)
+         *                                                          |__do-subelement (SimpleField) (1-1)
+         *                                                          |__bb-anonymous (ComplexType) (1-1)
+         *                                                             |__bb-subelement (SimpleField) (0-1)
+         */
+
+        MetadataRepository original = new MetadataRepository();
+        original.load(CompareTest.class.getResourceAsStream("schema31_1.xsd")); //$NON-NLS-1$
+        original = original.copy();
+        MetadataRepository updated2 = new MetadataRepository();
+        updated2.load(CompareTest.class.getResourceAsStream("schema31_a_10.xsd")); //$NON-NLS-1$
+        Compare.DiffResults diffResults = Compare.compare(original, updated2);
+        assertEquals(6, diffResults.getActions().size());
+        assertEquals(0, diffResults.getModifyChanges().size());
+        assertEquals(0, diffResults.getRemoveChanges().size());
+        assertEquals(6, diffResults.getAddChanges().size());
+
+        ImpactAnalyzer analyzer = new HibernateStorageImpactAnalyzer();
+        Map<ImpactAnalyzer.Impact, List<Change>> sort = analyzer.analyzeImpacts(diffResults);
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.HIGH).size());
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.MEDIUM).size());
+        assertEquals(6, sort.get(ImpactAnalyzer.Impact.LOW).size());
+    }
+
+    public void test31_addOptionalComplexField_existed_1() throws Exception {
+        /*
+         * Entity                                                                 Entity
+         *   |__id (SimpleField) (1-1)                                              |__id (SimpleField) (1-1)
+         *   |__do1-anonymous (ComplexType) (0-1)                                   |__do1-anonymous (ComplexType) (0-1)
+         *      |__do1-subelement (SimpleField) (1-1)                                  |__do1-subelement (SimpleField) (1-1)
+         *      |__aa1-anonymous (ComplexType) (0-1)                                   |__aa1-anonymous (ComplexType) (0-1)
+         *           |__aa1-subelement (SimpleField) (1-1)                                  |__aa1-subelement (SimpleField) (1-1)
+         *      |__aa2-anonymous (ComplexType) (1-many)                                |__aa2-anonymous (ComplexType) (1-many)
+         *           |__aa2-subelement (SimpleField) (1-1)                                  |__aa2-subelement (SimpleField) (1-1)
+         *      |__aa3-non-anonymous (ComplexType) (0-1)                               |__aa3-non-anonymous (ComplexType) (0-1)
+         *           |__aa3-subelement (SimpleField) (1-1)                                  |__aa3-subelement (SimpleField) (1-1)
+         *      |__aa4-non-anonymous (ComplexType) (1-1)                               |__aa4-non-anonymous (ComplexType) (1-1)
+         *           |__aa4-subelement (SimpleField) (1-1)     =====>                       |__aa4-subelement (SimpleField) (1-1)
+         *                                                                          |__do3-anonymous (ComplexType) (0-1)
+         *                                                                             |__do1-subelement (SimpleField) (1-1)
+         *                                                                             |__aa1-anonymous (ComplexType) (0-1)
+         *                                                                                  |__aa1-subelement (SimpleField) (1-1)
+         *                                                                             |__aa2-anonymous (ComplexType) (1-many)
+         *                                                                                  |__aa2-subelement (SimpleField) (1-1)
+         *                                                                             |__aa3-non-anonymous (ComplexType) (0-1)
+         *                                                                                  |__aa3-subelement (SimpleField) (1-1)
+         *                                                                             |__aa4-non-anonymous (ComplexType) (1-1)
+         *                                                                                  |__aa4-subelement (SimpleField) (1-1)
+         *                                                                          |__do4-non-anonymous (ComplexType) (0-1)
+         *                                                                             |__do2-subelement (SimpleField) (1-1)
+         *                                                                             |__bb1-anonymous (ComplexType) (0-1)
+         *                                                                                  |__bb1-subelement (SimpleField) (1-1)
+         *                                                                             |__bb2-anonymous (ComplexType) (1-many)
+         *                                                                                  |__aa2-subelement (SimpleField) (1-1)
+         *                                                                             |__bb3-non-anonymous (ComplexType) (0-1)
+         *                                                                                  |__aa3-subelement (SimpleField) (1-1)
+         *                                                                             |__bb4-non-anonymous (ComplexType) (1-1)
+         *                                                                                  |__aa4-subelement (SimpleField) (1-1)
+        */
+
+        MetadataRepository original = new MetadataRepository();
+        original.load(CompareTest.class.getResourceAsStream("schema31_e_1.xsd")); //$NON-NLS-1$
+        original = original.copy();
+        MetadataRepository updated2 = new MetadataRepository();
+        updated2.load(CompareTest.class.getResourceAsStream("schema31_e_2.xsd")); //$NON-NLS-1$
+        Compare.DiffResults diffResults = Compare.compare(original, updated2);
+        assertEquals(33, diffResults.getActions().size());
+        assertEquals(0, diffResults.getModifyChanges().size());
+        assertEquals(0, diffResults.getRemoveChanges().size());
+        assertEquals(33, diffResults.getAddChanges().size());
+
+        ImpactAnalyzer analyzer = new HibernateStorageImpactAnalyzer();
+        Map<ImpactAnalyzer.Impact, List<Change>> sort = analyzer.analyzeImpacts(diffResults);
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.HIGH).size());
+        assertEquals(0, sort.get(ImpactAnalyzer.Impact.MEDIUM).size());
+        assertEquals(33, sort.get(ImpactAnalyzer.Impact.LOW).size());
     }
 
     @SuppressWarnings("rawtypes")
