@@ -68,6 +68,11 @@ class DirectWriteContext implements DocumentSaverContext {
             public String getBeforeSavingMessage() {
                 return null;
             }
+
+            @Override
+            public String getBeforeSavingMessageType() {
+                return BeforeSaving.TYPE_INFO;
+            }
         };
     }
 

@@ -26,4 +26,6 @@ public interface DocumentSaver {
     String getSavedConceptName();
 
     String getBeforeSavingMessage();
+
+    String getBeforeSavingMessageType();
 }

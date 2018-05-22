@@ -107,6 +107,7 @@ import com.amalto.core.objects.UpdateReportPOJO;
 import com.amalto.core.objects.customform.CustomFormPOJO;
 import com.amalto.core.objects.customform.CustomFormPOJOPK;
 import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
+import com.amalto.core.save.context.BeforeSaving;
 import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.storage.Storage;
@@ -214,7 +215,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             records = deleteRecordMap.get(concept);
             if (!records.contains(item.getIds())) {
                 Locale locale = new Locale(language);
-                ItemResult messageBean = new ItemResult();
                 try {
                     MetadataRepository repository = CommonUtil.getCurrentRepository();
                     String dataClusterPK = getCurrentDataCluster();
@@ -230,20 +230,18 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     if (deleteMessage == null) {
                         throw new ServiceException(MESSAGES.getMessage("delete_record_failure", locale)); //$NON-NLS-1$
                     } else {
+                        ItemResult messageBean = new ItemResult(item.getIds());
                         String message = deleteMessage.getValue();
                         String messageType = wsDeleteItem.getSource();
                         if (messageType != null && INFO_KEYWORD.equals(messageType)) {
-                            messageBean.setKey(item.getIds());
                             messageBean.setStatus(getMessageTypeStatus(INFO_KEYWORD));
                             messageBean.setMessage(message);
                             itemResults.add(messageBean);
                         } else if (messageType != null && FAIL_KEYWORD.equals(messageType)) {
-                            messageBean.setKey(item.getIds());
                             messageBean.setStatus(getMessageTypeStatus(FAIL_KEYWORD));
                             messageBean.setMessage(MESSAGES.getMessage("message_fail", locale)); //$NON-NLS-1$
                             itemResults.add(messageBean);
                         } else if (messageType != null && ERROR_KEYWORD.equals(messageType)) {
-                            messageBean.setKey(item.getIds());
                             messageBean.setStatus(getMessageTypeStatus(ERROR_KEYWORD));
                             messageBean.setMessage(message);
                             itemResults.add(messageBean);
@@ -1634,11 +1632,6 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
 
     @Override
-    public String saveItemBean(ItemBean item, String language) throws ServiceException {
-        return saveItem(item.getConcept(), item.getIds(), item.getItemXml(), true, language).getDescription();
-    }
-
-    @Override
     public String bulkUpdateItem(String baseUrl, String concept, String xml, String language) throws ServiceException {
         try {
             String url = baseUrl + "services/rest/data/" + getCurrentDataCluster() + "/" + concept + "/bulk";
@@ -1662,7 +1655,8 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
 
     @Override
-    public ItemResult saveItem(String concept, String ids, String xml, boolean isCreate, String language) throws ServiceException {
+    public ItemResult saveItem(String concept, String ids, String xml, boolean isCreate, boolean isWarningApprovedBeforeSave,
+            String language) throws ServiceException {
         Locale locale = new Locale(language);
 
         boolean hasBeforeSavingProcess = Util.isTransformerExist("beforeSaving_" + concept); //$NON-NLS-1$
@@ -1678,20 +1672,27 @@ public class BrowseRecordsAction implements BrowseRecordsService {
             WSDataModelPK wsDataModelPK = new WSDataModelPK(getCurrentDataModel());
             WSPutItemWithReport wsPutItemWithReport = new WSPutItemWithReport(new WSPutItem(wsDataClusterPK, xml, wsDataModelPK,
                     !isCreate), UpdateReportPOJO.GENERIC_UI_SOURCE, true);
+            wsPutItemWithReport.setWarningApprovedBeforeSave(isWarningApprovedBeforeSave);
             int status = ItemResult.SUCCESS;
             WSItemPK wsi = CommonUtil.getPort().putItemWithReport(wsPutItemWithReport);
-            String message = wsPutItemWithReport.getSource(); // putItemWithReport is expected to put
-                                                              // beforeSavingMessage in getSource().
-
+            String message = wsPutItemWithReport.getMessage();
+            boolean isWarningBeforeSavingProcess = BeforeSaving.TYPE_WARNING == wsPutItemWithReport.getMessageType();
+            if (isWarningBeforeSavingProcess) {
+                status = ItemResult.WARNING;
+            }
             if (hasBeforeSavingProcess) {
                 // No message from beforeSaving process,
                 if (message == null || message.length() == 0) {
-                    message = MESSAGES.getMessage(locale, "save_process_validation_success"); //$NON-NLS-1$
+                    if (isWarningBeforeSavingProcess) {
+                        message = MESSAGES.getMessage(locale, "save_process_validation_warning"); //$NON-NLS-1$
+                    } else {
+                        message = MESSAGES.getMessage(locale, "save_process_validation_success"); //$NON-NLS-1$
+                    }
                 }
             } else {
                 message = MESSAGES.getMessage(locale, "save_record_success"); //$NON-NLS-1$
             }
-            if (wsi == null) {
+            if (wsi == null || (isWarningBeforeSavingProcess && !isWarningApprovedBeforeSave)) {
                 return new ItemResult(status, message, ids);
             } else {
                 String[] pk = wsi.getIds();
@@ -1743,11 +1744,11 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
 
     @Override
-    public ItemResult saveItem(ViewBean viewBean, String ids, String xml, boolean isCreate, String language)
-            throws ServiceException {
+    public ItemResult saveItem(ViewBean viewBean, String ids, String xml, boolean isCreate, boolean isWarningApprovedBeforeSave,
+            String language) throws ServiceException {
         EntityModel entityModel = viewBean.getBindingEntityModel();
         String concept = entityModel.getConceptName();
-        return saveItem(concept, ids, xml, isCreate, language);
+        return saveItem(concept, ids, xml, isCreate, isWarningApprovedBeforeSave, language);
     }
 
     @SuppressWarnings("deprecation")
@@ -1789,7 +1790,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     }
                 }
             }
-            return saveItem(concept, ids, doc.asXML(), false, language);
+            return saveItem(concept, ids, doc.asXML(), false, false, language);
         } catch (WebBaseException e) {
             throw new ServiceException(BASEMESSAGE.getMessage(new Locale(language), e.getMessage(), e.getArgs()));
         } catch (Exception e) {

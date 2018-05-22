@@ -1098,8 +1098,8 @@ public class TreeDetailGWTTest extends GWTTestCase {
     class MockBrowseRecordsServiceAsync implements BrowseRecordsServiceAsync {
 
         @Override
-        public void saveItem(ViewBean viewBean, String ids, String xml, boolean isCreate, String language,
-                AsyncCallback<ItemResult> callback) {
+        public void saveItem(ViewBean viewBean, String ids, String xml, boolean isCreate, boolean isWarningApprovedBeforeSave,
+                String language, AsyncCallback<ItemResult> callback) {
             callback.onSuccess(new ItemResult(ItemResult.SUCCESS));
         }
 
@@ -1114,10 +1114,6 @@ public class TreeDetailGWTTest extends GWTTestCase {
 
         @Override
         public void queryItemBeans(QueryModel config, String language, AsyncCallback<ItemBasePageLoadResult<ItemBean>> callback) {
-        }
-
-        @Override
-        public void saveItemBean(ItemBean item, String language, AsyncCallback<String> callback) {
         }
 
         @Override
@@ -1195,8 +1191,8 @@ public class TreeDetailGWTTest extends GWTTestCase {
         }
 
         @Override
-        public void saveItem(String concept, String ids, String xml, boolean isCreate, String language,
-                AsyncCallback<ItemResult> callback) {
+        public void saveItem(String concept, String ids, String xml, boolean isCreate, boolean isWarningApprovedBeforeSave,
+                String language, AsyncCallback<ItemResult> callback) {
         }
 
         @Override

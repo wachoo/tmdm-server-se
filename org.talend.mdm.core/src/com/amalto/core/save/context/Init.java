@@ -74,4 +74,8 @@ class Init implements DocumentSaver {
     public String getBeforeSavingMessage() {
         return next.getBeforeSavingMessage();
     }
+
+    public String getBeforeSavingMessageType() {
+        return next.getBeforeSavingMessageType();
+    }
 }

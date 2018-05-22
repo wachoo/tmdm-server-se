@@ -97,4 +97,9 @@ class Save implements DocumentSaver {
     public String getBeforeSavingMessage() {
         return StringUtils.EMPTY;
     }
+
+    @Override
+    public String getBeforeSavingMessageType() {
+        return BeforeSaving.TYPE_INFO;
+    }
 }
