@@ -15,15 +15,8 @@ public class DownloadData4Staging extends DownloadData {
 
     private static final long serialVersionUID = 6201136236958671070L;
 
-    private final String STAGING_SUFFIX_NAME = "-Staging"; //$NON-NLS-1$
-
     @Override
-    protected void generateFileName(String name) {
-        fileName = name + STAGING_SUFFIX_NAME + DOWNLOADFILE_EXTEND_NAME;
-    }
-
-    @Override
-    protected String getCurrentDataCluster() throws Exception {
-        return org.talend.mdm.webapp.browserecords.server.util.CommonUtil.getCurrentDataCluster(true);
+    protected boolean isStaging() {
+        return true;
     }
 }
