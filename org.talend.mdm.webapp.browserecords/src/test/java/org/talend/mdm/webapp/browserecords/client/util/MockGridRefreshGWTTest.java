@@ -534,12 +534,13 @@ public class MockGridRefreshGWTTest extends GWTTestCase {
 
         @Override
         public void updateItem(String concept, String ids, Map<String, String> changedNodes, String xml, EntityModel entityModel,
-                String language, AsyncCallback<ItemResult> callback) {
+                boolean isWarningApprovedBeforeSave, String language, AsyncCallback<ItemResult> callback) {
 
         }
 
         @Override
-        public void updateItems(List<UpdateItemModel> updateItems, String language, AsyncCallback<List<ItemResult>> callback) {
+        public void updateItems(List<UpdateItemModel> updateItems, boolean isWarningApprovedBeforeSave, String language,
+                AsyncCallback<List<ItemResult>> callback) {
 
         }
 

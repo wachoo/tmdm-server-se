@@ -115,9 +115,10 @@ public interface BrowseRecordsService extends RemoteService {
             String language) throws ServiceException;
 
     ItemResult updateItem(String concept, String ids, Map<String, String> changedNodes, String xml, EntityModel entityModel,
-            String language) throws ServiceException;
+            boolean isWarningApprovedBeforeSave, String language) throws ServiceException;
 
-    List<ItemResult> updateItems(List<UpdateItemModel> updateItems, String language) throws ServiceException;
+    List<ItemResult> updateItems(List<UpdateItemModel> updateItems, boolean isWarningApprovedBeforeSave, String language)
+            throws ServiceException;
 
     ColumnTreeLayoutModel getColumnTreeLayout(String concept, String customFormName, ViewBean vBean) throws ServiceException;
 

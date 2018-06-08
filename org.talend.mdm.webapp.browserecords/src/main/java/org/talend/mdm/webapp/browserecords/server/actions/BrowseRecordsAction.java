@@ -1757,7 +1757,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     @SuppressWarnings("deprecation")
     @Override
     public ItemResult updateItem(String concept, String ids, Map<String, String> changedNodes, String xml,
-            EntityModel entityModel, String language) throws ServiceException {
+            EntityModel entityModel, boolean isWarningApprovedBeforeSave, String language) throws ServiceException {
         try {
             org.dom4j.Document doc;
             if (xml == null || xml.trim().length() == 0) {
@@ -1793,7 +1793,7 @@ public class BrowseRecordsAction implements BrowseRecordsService {
                     }
                 }
             }
-            return saveItem(concept, ids, doc.asXML(), false, false, language);
+            return saveItem(concept, ids, doc.asXML(), false, isWarningApprovedBeforeSave, language);
         } catch (WebBaseException e) {
             throw new ServiceException(BASEMESSAGE.getMessage(new Locale(language), e.getMessage(), e.getArgs()));
         } catch (Exception e) {
@@ -1803,11 +1803,13 @@ public class BrowseRecordsAction implements BrowseRecordsService {
     }
 
     @Override
-    public List<ItemResult> updateItems(List<UpdateItemModel> updateItems, String language) throws ServiceException {
+    public List<ItemResult> updateItems(List<UpdateItemModel> updateItems, boolean isWarningApprovedBeforeSave, String language)
+            throws ServiceException {
         List<ItemResult> resultes = new ArrayList<ItemResult>();
         for (UpdateItemModel item : updateItems) {
             try {
-                resultes.add(updateItem(item.getConcept(), item.getIds(), item.getChangedNodes(), null, null, language));
+                resultes.add(updateItem(item.getConcept(), item.getIds(), item.getChangedNodes(), null, null,
+                        isWarningApprovedBeforeSave, language));
             } catch (Exception e) {
                 LOG.error(e.getMessage(), e);
             }
