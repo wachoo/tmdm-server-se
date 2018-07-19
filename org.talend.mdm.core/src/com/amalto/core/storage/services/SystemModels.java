@@ -51,6 +51,7 @@ import org.talend.mdm.commmon.metadata.compare.ImpactAnalyzer;
 import com.amalto.commons.core.datamodel.synchronization.DMUpdateEvent;
 import com.amalto.commons.core.datamodel.synchronization.DataModelChangeNotifier;
 import com.amalto.core.objects.datamodel.DataModelPOJO;
+import com.amalto.core.objects.datamodel.DataModelPOJOPK;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.server.MetadataRepositoryAdmin;
@@ -226,6 +227,13 @@ public class SystemModels {
     public String analyzeModelChange(@ApiParam("Model name") @PathParam("model") String modelName, 
             @ApiParam("Optional language to get localized result") @QueryParam("lang") String locale, 
             InputStream dataModel) {
+        DataModelPOJO dataModelPOJO;
+        try {
+            dataModelPOJO = DataModelPOJO.load(DataModelPOJO.class, new DataModelPOJOPK(modelName));
+        } catch (XtentisException e) {
+            LOGGER.error("An error occurred while fetching Data Model.", e);
+            throw new RuntimeException("An error occurred while fetching Data Model.", e); //$NON-NLS-1$
+        }
         Map<ImpactAnalyzer.Impact, List<Change>> impacts;
         List<String> typeNamesToDrop = new ArrayList<String>();
         if (!isSystemStorageAvailable()) {
@@ -236,7 +244,7 @@ public class SystemModels {
         } else {
             StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
             Storage storage = storageAdmin.get(modelName, StorageType.MASTER);
-            if (storage == null) {
+            if (storage == null || dataModelPOJO == null) {
                 LOGGER.warn("Container '" + modelName + "' does not exist. Skip impact analyzing for model change."); //$NON-NLS-1$//$NON-NLS-2$
                 return StringUtils.EMPTY;
             }
