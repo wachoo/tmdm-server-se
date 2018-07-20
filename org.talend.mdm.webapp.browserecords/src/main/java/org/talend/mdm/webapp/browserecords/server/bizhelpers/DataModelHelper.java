@@ -430,6 +430,14 @@ public class DataModelHelper {
                             if (roles.contains(appinfoSourceValue)) {
                                 writable = true;
                             }
+                        } else if ("X_No_Add".equals(appinfoSource)) {//$NON-NLS-1$
+                            if (roles.contains(appinfoSourceValue)) {
+                                typeModel.setAddPermission(false);
+                            }
+                        } else if ("X_No_Remove".equals(appinfoSource)) {//$NON-NLS-1$
+                            if (roles.contains(appinfoSourceValue)) {
+                                typeModel.setRemovePermission(false);
+                            }
                         } else if ("X_Hide".equals(appinfoSource)) {//$NON-NLS-1$
                             if (roles.contains(appinfoSourceValue)) {
                                 typeModel.setHide(true) ;
@@ -486,6 +494,10 @@ public class DataModelHelper {
             typeModel.setReadOnly(false);
         } else {
             typeModel.setReadOnly(!writable);
+        }
+        if (!writable) {
+            typeModel.setAddPermission(false);
+            typeModel.setRemovePermission(false);
         }
         typeModel.setForeignKeyInfo(fkInfoList);
         typeModel.setPrimaryKeyInfo(pkInfoList);
