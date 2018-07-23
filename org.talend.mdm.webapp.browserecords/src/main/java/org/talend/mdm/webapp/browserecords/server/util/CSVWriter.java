@@ -14,12 +14,15 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.talend.mdm.webapp.browserecords.shared.Constants;
 
 @SuppressWarnings("nls")
 public class CSVWriter extends DownloadWriter {
 
     private StringBuffer content = new StringBuffer();
+
+    private String[] lineDataArray;
 
     public CSVWriter(String concept, String viewPk, List<String> idsList, String[] headerArray, String[] xpathArray,
             String criteria, String multipleValueSeparator, String fkDisplay, boolean fkResovled, Map<String, String> colFkMap,
@@ -40,14 +43,25 @@ public class CSVWriter extends DownloadWriter {
 
     @Override
     void generateLine() throws Exception {
+        lineDataArray = new String[headerArray.length];
         content.append(System.getProperty("line.separator")); //$NON-NLS-1$
     }
 
     @Override
     public void writeValue(String value) {
-        content.append(encodeValue(value));
-        if (columnIndex < headerArray.length - 1) {
-            content.append(","); //$NON-NLS-1$
+        lineDataArray[columnIndex] = encodeValue(value);
+        if (columnIndex == lineDataArray.length - 1) {
+            writeLine();
+        }
+    }
+
+    private void writeLine() {
+        for (int i = 0; i < lineDataArray.length; i++) {
+            String value = lineDataArray[i];
+            content.append(value == null ? StringUtils.EMPTY : value);
+            if (i < lineDataArray.length - 1) {
+                content.append(","); //$NON-NLS-1$
+            }
         }
     }
 
