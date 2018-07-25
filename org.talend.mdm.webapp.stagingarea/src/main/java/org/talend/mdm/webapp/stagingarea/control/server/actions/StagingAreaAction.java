@@ -9,9 +9,14 @@
  */
 package org.talend.mdm.webapp.stagingarea.control.server.actions;
 
-import com.amalto.core.server.MetadataRepositoryAdmin;
-import com.amalto.core.server.ServerContext;
-import com.amalto.webapp.core.bean.Configuration;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
@@ -21,9 +26,18 @@ import org.talend.mdm.webapp.base.client.exception.ServiceException;
 import org.talend.mdm.webapp.stagingarea.control.client.StagingAreaService;
 import org.talend.mdm.webapp.stagingarea.control.shared.model.ConceptRelationshipModel;
 import org.talend.mdm.webapp.stagingarea.control.shared.model.StagingAreaConfiguration;
+import org.talend.mdm.webapp.stagingarea.control.shared.model.StagingAreaExecutionModel;
+import org.talend.mdm.webapp.stagingarea.control.shared.model.StagingContainerModel;
 
-import java.io.InputStream;
-import java.util.*;
+import com.amalto.core.server.MetadataRepositoryAdmin;
+import com.amalto.core.server.ServerContext;
+import com.amalto.core.storage.task.staging.DefaultStagingTaskService;
+import com.amalto.core.storage.task.staging.ExecutionStatistics;
+import com.amalto.core.storage.task.staging.SerializableList;
+import com.amalto.core.storage.task.staging.StagingContainerSummary;
+import com.amalto.core.storage.task.staging.StagingTaskServiceDelegate;
+import com.amalto.webapp.core.bean.Configuration;
+import com.google.gwt.i18n.client.DateTimeFormat;
 
 public class StagingAreaAction implements StagingAreaService {
 
@@ -32,6 +46,8 @@ public class StagingAreaAction implements StagingAreaService {
     private static final String STAGING_AREA_PROPERTIES   = "/stagingarea.properties";                //$NON-NLS-1$
 
     private static final int    DEFAULT_REFRESH_INTERVALS = 1000;
+
+    StagingTaskServiceDelegate delegate = new DefaultStagingTaskService();
 
     public StagingAreaConfiguration getStagingAreaConfig() {
         StagingAreaConfiguration cm = new StagingAreaConfiguration();
@@ -77,5 +93,42 @@ public class StagingAreaAction implements StagingAreaService {
             throw new ServiceException(e.getLocalizedMessage());
         }
     }
+
+    @Override
+    public StagingContainerModel getStagingContainerSummary(String dataContainer, String dataModel) {
+        StagingContainerSummary containerSummary = delegate.getContainerSummary(dataContainer, dataModel);
+        StagingContainerModel model = new StagingContainerModel();
+        model.setDataContainer(containerSummary.getDataContainer());
+        model.setDataModel(containerSummary.getDataModel());
+        model.setInvalidRecords(containerSummary.getInvalidRecords());
+        model.setTotalRecords(containerSummary.getTotalRecord());
+        model.setValidRecords(containerSummary.getValidRecords());
+        model.setWaitingValidationRecords(containerSummary.getWaitingForValidation());
+        return model;
+    }
+
+    @Override
+    public List<String> listCompletedTaskExecutions(String dataContainer, int start, int pageSize) {
+        return SerializableList.create(delegate.listCompletedExecutions(dataContainer, null, start, pageSize), "executions", //$NON-NLS-1$
+                "execution"); //$NON-NLS-1$
+    }
+
+    @Override
+    public StagingAreaExecutionModel getExecutionStats(String dataContainer, String dataModel, String executionId) {
+        String pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSz"; //$NON-NLS-1$
+        DateTimeFormat format = DateTimeFormat.getFormat(pattern);
+        StagingAreaExecutionModel model = new StagingAreaExecutionModel();
+        ExecutionStatistics statistics = delegate.getExecutionStats(dataContainer, dataModel, executionId);
+        String startDate = statistics.getStartDate();
+        String endDate = statistics.getEndDate();
+        model.setId(statistics.getId());
+        model.setInvalidRecords(statistics.getInvalidRecords());
+        model.setProcessedRecords(statistics.getProcessedRecords());
+        model.setTotalRecord(statistics.getTotalRecords());
+        model.setStartDate(startDate == null ? null : format.parse(startDate));
+        model.setEndDate(endDate == null ? null : format.parse(endDate));
+        return model;
+    }
+
 
 }

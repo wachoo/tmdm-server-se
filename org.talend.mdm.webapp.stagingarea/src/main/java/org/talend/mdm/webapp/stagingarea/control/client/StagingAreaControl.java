@@ -9,7 +9,14 @@
  */
 package org.talend.mdm.webapp.stagingarea.control.client;
 
+import org.talend.mdm.webapp.base.client.ServiceEnhancer;
+import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
+import org.talend.mdm.webapp.stagingarea.control.client.view.StagingAreaMainView;
+import org.talend.mdm.webapp.stagingarea.control.shared.controller.Controllers;
+import org.talend.mdm.webapp.stagingarea.control.shared.model.StagingAreaConfiguration;
+
 import com.allen_sauer.gwt.log.client.Log;
+import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.core.XDOM;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.google.gwt.core.client.EntryPoint;
@@ -20,15 +27,12 @@ import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.rpc.ServiceDefTarget;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
-import org.talend.mdm.webapp.base.client.ServiceEnhancer;
-import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
-import org.talend.mdm.webapp.stagingarea.control.client.view.StagingAreaMainView;
-import org.talend.mdm.webapp.stagingarea.control.shared.controller.Controllers;
-import org.talend.mdm.webapp.stagingarea.control.shared.model.StagingAreaConfiguration;
 
 public class StagingAreaControl implements EntryPoint {
 
     public static final String STAGINGAREA_ID = "Stagingarea"; //$NON-NLS-1$
+
+    public static final String STAGINGAREA_SERVICE = "StagingareaService"; //$NON-NLS-1$
 
     private static final StagingAreaConfiguration stagingAreaConfig = new StagingAreaConfiguration();
 
@@ -42,6 +46,7 @@ public class StagingAreaControl implements EntryPoint {
     public void onModuleLoad() {
         service = GWT.create(StagingAreaService.class);
         ServiceEnhancer.customizeService((ServiceDefTarget) service);
+        Registry.register(STAGINGAREA_SERVICE, service);
 
         XDOM.setAutoIdPrefix(GWT.getModuleName() + "-" + XDOM.getAutoIdPrefix()); //$NON-NLS-1$
         registerPubService();
@@ -49,21 +54,21 @@ public class StagingAreaControl implements EntryPoint {
     }
 
     private native void registerPubService()/*-{
-                                            var instance = this;
-                                            $wnd.amalto.stagingarea = {};
-                                            $wnd.amalto.stagingarea.Stagingarea = function() {
+        var instance = this;
+        $wnd.amalto.stagingarea = {};
+        $wnd.amalto.stagingarea.Stagingarea = function() {
 
-                                            function initUI() {
-                                            instance.@org.talend.mdm.webapp.stagingarea.control.client.StagingAreaControl::initUI()();
-                                            }
+            function initUI() {
+                instance.@org.talend.mdm.webapp.stagingarea.control.client.StagingAreaControl::initUI()();
+            }
 
-                                            return {
-                                            init : function() {
-                                            initUI();
-                                            }
-                                            }
-                                            }();
-                                            }-*/;
+            return {
+                init : function() {
+                    initUI();
+                }
+            }
+        }();
+    }-*/;
 
     // Called by JS
     public static void cancelAutoRefresh() {
@@ -71,53 +76,53 @@ public class StagingAreaControl implements EntryPoint {
     }
 
     private native void _initUI()/*-{
-                                 var tabPanel = $wnd.amalto.core.getTabPanel();
-                                 var panel = tabPanel.getItem("Stagingarea");
-                                 if (panel == undefined) {
-                                 @org.talend.mdm.webapp.stagingarea.control.client.GenerateContainer::generateContentPanel()();
-                                 panel = this.@org.talend.mdm.webapp.stagingarea.control.client.StagingAreaControl::createPanel()();
-                                 var removeTabEvent = function(tabPanel, tabItem) {
-                                    @org.talend.mdm.webapp.stagingarea.control.client.StagingAreaControl::cancelAutoRefresh()();
-                                    return true;
-                                 };
-                                 tabPanel.on("beforeremove", removeTabEvent);
-                                 tabPanel.add(panel);
-                                 }
-                                 tabPanel.setSelection(panel.getItemId());
-                                 }-*/;
+        var tabPanel = $wnd.amalto.core.getTabPanel();
+        var panel = tabPanel.getItem("Stagingarea");
+        if (panel == undefined) {
+            @org.talend.mdm.webapp.stagingarea.control.client.GenerateContainer::generateContentPanel()();
+            panel = this.@org.talend.mdm.webapp.stagingarea.control.client.StagingAreaControl::createPanel()();
+            var removeTabEvent = function(tabPanel, tabItem) {
+                @org.talend.mdm.webapp.stagingarea.control.client.StagingAreaControl::cancelAutoRefresh()();
+                return true;
+            };
+            tabPanel.on("beforeremove", removeTabEvent);
+            tabPanel.add(panel);
+        }
+        tabPanel.setSelection(panel.getItemId());
+    }-*/;
 
     native JavaScriptObject createPanel()/*-{
-                                         var instance = this;
-                                         var panel = {
-                                         render : function(el) {
-                                         instance.@org.talend.mdm.webapp.stagingarea.control.client.StagingAreaControl::renderContent(Ljava/lang/String;)(el.id);
-                                         },
-                                         setSize : function(width, height) {
-                                         var cp = @org.talend.mdm.webapp.stagingarea.control.client.GenerateContainer::getContentPanel()();
-                                         cp.@com.extjs.gxt.ui.client.widget.ContentPanel::setSize(II)(width, height);
-                                         },
-                                         getItemId : function() {
-                                         var cp = @org.talend.mdm.webapp.stagingarea.control.client.GenerateContainer::getContentPanel()();
-                                         return cp.@com.extjs.gxt.ui.client.widget.ContentPanel::getItemId()();
-                                         },
-                                         getEl : function() {
-                                         var cp = @org.talend.mdm.webapp.stagingarea.control.client.GenerateContainer::getContentPanel()();
-                                         var el = cp.@com.extjs.gxt.ui.client.widget.ContentPanel::getElement()();
-                                         return {
-                                         dom : el
-                                         };
-                                         },
-                                         doLayout : function() {
-                                         var cp = @org.talend.mdm.webapp.stagingarea.control.client.GenerateContainer::getContentPanel()();
-                                         return cp.@com.extjs.gxt.ui.client.widget.ContentPanel::doLayout()();
-                                         },
-                                         title : function() {
-                                         var cp = @org.talend.mdm.webapp.stagingarea.control.client.GenerateContainer::getContentPanel()();
-                                         return cp.@com.extjs.gxt.ui.client.widget.ContentPanel::getHeading()();
-                                         }
-                                         };
-                                         return panel;
-                                         }-*/;
+        var instance = this;
+        var panel = {
+            render : function(el) {
+                instance.@org.talend.mdm.webapp.stagingarea.control.client.StagingAreaControl::renderContent(Ljava/lang/String;)(el.id);
+            },
+            setSize : function(width, height) {
+                var cp = @org.talend.mdm.webapp.stagingarea.control.client.GenerateContainer::getContentPanel()();
+                cp.@com.extjs.gxt.ui.client.widget.ContentPanel::setSize(II)(width, height);
+            },
+            getItemId : function() {
+                var cp = @org.talend.mdm.webapp.stagingarea.control.client.GenerateContainer::getContentPanel()();
+                return cp.@com.extjs.gxt.ui.client.widget.ContentPanel::getItemId()();
+            },
+            getEl : function() {
+                var cp = @org.talend.mdm.webapp.stagingarea.control.client.GenerateContainer::getContentPanel()();
+                var el = cp.@com.extjs.gxt.ui.client.widget.ContentPanel::getElement()();
+                return {
+                    dom : el
+                };
+            },
+            doLayout : function() {
+                var cp = @org.talend.mdm.webapp.stagingarea.control.client.GenerateContainer::getContentPanel()();
+                return cp.@com.extjs.gxt.ui.client.widget.ContentPanel::doLayout()();
+            },
+            title : function() {
+                var cp = @org.talend.mdm.webapp.stagingarea.control.client.GenerateContainer::getContentPanel()();
+                return cp.@com.extjs.gxt.ui.client.widget.ContentPanel::getHeading()();
+            }
+        };
+        return panel;
+    }-*/;
 
     public void renderContent(final String contentId) {
         onModuleRender();

@@ -25,15 +25,20 @@ import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.rest.ClientResourceWrapper;
 import org.talend.mdm.webapp.base.client.rest.ResourceSessionAwareCallbackHandler;
 import org.talend.mdm.webapp.base.client.rest.RestServiceHelper;
+import org.talend.mdm.webapp.stagingarea.control.client.StagingAreaControl;
+import org.talend.mdm.webapp.stagingarea.control.client.StagingAreaServiceAsync;
 import org.talend.mdm.webapp.stagingarea.control.shared.model.StagingAreaExecutionModel;
 import org.talend.mdm.webapp.stagingarea.control.shared.model.StagingAreaValidationModel;
 import org.talend.mdm.webapp.stagingarea.control.shared.model.StagingContainerModel;
 
+import com.extjs.gxt.ui.client.Registry;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.xml.client.Node;
 import com.google.gwt.xml.client.NodeList;
 
 public class StagingRestServiceHandler {
+
+    StagingAreaServiceAsync service = (StagingAreaServiceAsync) Registry.get(StagingAreaControl.STAGINGAREA_SERVICE);
 
     private static final StagingRestServiceHandler handler = new StagingRestServiceHandler();
 
@@ -59,18 +64,19 @@ public class StagingRestServiceHandler {
         if (dataContainer == null || dataModel == null) {
             throw new IllegalArgumentException();
         }
-        Map<String, String> parameterMap = new HashMap<String, String>();
-        parameterMap.put("model", dataModel); //$NON-NLS-1$
-        ClientResourceWrapper client = getClient();
-        client.init(Method.GET, restServiceUrl + '/' + dataContainer + '/', parameterMap);
-        client.setCallback(new ResourceSessionAwareCallbackHandler() {
+
+        service.getStagingContainerSummary(dataContainer, dataModel, new SessionAwareAsyncCallback<StagingContainerModel>() {
 
             @Override
-            public void doProcess(Request request, Response response) throws Exception {
-                StagingModelConverter.set(response, model);
+            public void onSuccess(StagingContainerModel containerModel) {
+                model.setDataContainer(containerModel.getDataContainer());
+                model.setDataModel(containerModel.getDataModel());
+                model.setInvalidRecords(containerModel.getInvalidRecords());
+                model.setTotalRecords(containerModel.getTotalRecords());
+                model.setValidRecords(containerModel.getValidRecords());
+                model.setWaitingValidationRecords(containerModel.getWaitingValidationRecords());
             }
         });
-        client.request();
     }
 
     private ClientResourceWrapper getClient() {
