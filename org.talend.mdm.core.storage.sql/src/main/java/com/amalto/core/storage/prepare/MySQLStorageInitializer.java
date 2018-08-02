@@ -52,12 +52,17 @@ class MySQLStorageInitializer implements StorageInitializer {
         try {
             RDBMSDataSource dataSource = getDataSource(storage);
             Driver driver = (Driver) Class.forName(dataSource.getDriverClassName()).newInstance();
-            Connection connection = driver.connect(dataSource.getInitConnectionURL()
-                    + "?user=" + dataSource.getInitUserName() + "&password=" + dataSource.getInitPassword(), new Properties()); //$NON-NLS-1$ //$NON-NLS-2$
+
+            Properties properties = new Properties();
+            properties.put("user", dataSource.getInitUserName()); //$NON-NLS-1$
+            properties.put("password", dataSource.getInitPassword()); //$NON-NLS-1$
+
+            Connection connection = driver.connect(dataSource.getInitConnectionURL(), properties);
             try {
                 Statement statement = connection.createStatement();
                 try {
-                    statement.execute("CREATE DATABASE " + dataSource.getDatabaseName() + " DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;"); //$NON-NLS-1$ //$NON-NLS-2$
+                    statement.execute("CREATE DATABASE IF NOT EXISTS " + dataSource.getDatabaseName() //$NON-NLS-1$
+                            + " DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;"); //$NON-NLS-1$
                 } catch (SQLException e) {
                     // Assumes database is already created.
                     LOGGER.warn("Exception occurred during CREATE DATABASE statement.", e);
