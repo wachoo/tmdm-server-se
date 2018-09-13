@@ -412,8 +412,11 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
         } else {
             Element columnElement = document.createElement("column"); //$NON-NLS-1$
             Attr nameAttr = document.createAttribute("name"); //$NON-NLS-1$
-            nameAttr.setValue(resolver.get(referenceField.getReferencedField(),
-                    referenceField.getReferencedField().getContainingType().getName()));
+            String columnName = resolver.getFkConstraintName(referenceField);
+            if (columnName.isEmpty()) {
+                columnName = resolver.getHibernateFkConstrainName(referenceField);
+            }
+            nameAttr.setValue(columnName);
             columnElement.getAttributes().setNamedItem(nameAttr);
             keyElement.appendChild(columnElement);
         }
@@ -737,9 +740,15 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
         // default value
         String defaultValueRule = field.getData(MetadataRepository.DEFAULT_VALUE_RULE);
         if (StringUtils.isNotBlank(defaultValueRule)) {
+
             Attr defaultValueAttr = document.createAttribute("default"); //$NON-NLS-1$
-            defaultValueAttr.setValue(HibernateStorageUtils.convertedDefaultValue(dataSource.getDialectName(), defaultValueRule, "'"));
-            columnElement.getAttributes().setNamedItem(defaultValueAttr);
+
+            if (!field.getType().getName().equals(TypeMapping.SQL_TYPE_BOOLEAN)
+                    || HibernateStorageUtils.isBooleanDefaultValue(field.getType().getName(), defaultValueRule.trim())) {
+                defaultValueAttr.setValue(HibernateStorageUtils.convertedDefaultValue(field.getType().getName(),
+                        dataSource.getDialectName(), defaultValueRule.trim(), "'"));
+                columnElement.getAttributes().setNamedItem(defaultValueAttr);
+            }
         }
     }
 

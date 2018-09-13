@@ -12,7 +12,9 @@ package org.talend.mdm.webapp.browserecords.client.widget.inputfield.creator;
 import java.util.List;
 import java.util.Map;
 
+import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.shared.ComplexTypeModel;
+import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.base.shared.SimpleTypeModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
 import org.talend.mdm.webapp.browserecords.client.model.OperatorConstants;
@@ -32,7 +34,7 @@ public class SearchFieldCreator {
 
     public static Map<String, String> cons;
 
-    public static Field<?> createField(TypeModel typeModel) {
+    public static Field<?> createField(TypeModel typeModel, EntityModel entityModel) {
         Field<?> field = null;
         // when the search condition is no element of entity,the typeModel is null.For example search element/@xsi:type
         // equals something
@@ -41,11 +43,26 @@ public class SearchFieldCreator {
             textField.setValue("*");//$NON-NLS-1$
             field = textField;
             cons = OperatorConstants.stringOperators;
-        } else if (typeModel.getForeignkey() != null) {
-            ForeignKeyField fkField = new ForeignKeyField(typeModel);
-            fkField.setUsageField("SearchFieldCreator"); //$NON-NLS-1$
-            field = fkField;
-            cons = OperatorConstants.foreignKeyOperators;
+        } else if (typeModel.getForeignkey() != null && entityModel != null) {
+            boolean isCompositeKey = entityModel.getKeys().length > 1;
+            if (isCompositeKey) {
+                field = createForeignKeyField(typeModel);
+            } else {
+                String keyPath = entityModel.getKeys()[0];
+                TypeModel keyTypeModel = entityModel.getTypeModel(keyPath);
+                boolean isString = DataTypeConstants.STRING.getTypeName().equals(keyTypeModel.getType().getTypeName());
+                boolean isAutoIncrement = DataTypeConstants.AUTO_INCREMENT.getTypeName()
+                        .equals(keyTypeModel.getType().getTypeName());
+                boolean isUUID = DataTypeConstants.UUID.getTypeName().equals(keyTypeModel.getType().getTypeName());
+                if (isString || isAutoIncrement || isUUID) {
+                    TextField<String> textField = new TextField<String>();
+                    textField.setValue("*");//$NON-NLS-1$
+                    field = textField;
+                    cons = OperatorConstants.stringOperators;
+                } else {
+                    field = createForeignKeyField(typeModel);
+                }
+            }
         } else if (typeModel.hasEnumeration()) {
             SimpleComboBoxField<String> comboBox = new SimpleComboBoxField<String>();
             comboBox.setFireChangeEventOnSetValue(true);
@@ -70,8 +87,14 @@ public class SearchFieldCreator {
             field = typeFieldCreator.createField();
             cons = typeFieldSource.getOperatorMap();
         }
-
         return field;
+    }
+
+    private static Field createForeignKeyField(TypeModel typeModel) {
+        ForeignKeyField fkField = new ForeignKeyField(typeModel);
+        fkField.setUsageField("SearchFieldCreator"); //$NON-NLS-1$
+        cons = OperatorConstants.foreignKeyOperators;
+        return fkField;
     }
 
     private static void setEnumerationValues(TypeModel typeModel, Widget w) {

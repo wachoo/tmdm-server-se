@@ -1,23 +1,31 @@
-/*
- * Copyright (C) 2006-2018 Talend Inc. - www.talend.com
- * 
- * This source code is available under agreement available at
- * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
- * 
- * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
- * 92150 Suresnes, France
- */
+// ============================================================================
+//
+// Copyright (C) 2006-2018 Talend Inc. - www.talend.com
+//
+// This source code is available under agreement available at
+// %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
+//
+// You should have received a copy of the agreement
+// along with this program; if not, write to Talend SA
+// 9 rue Pages 92150 Suresnes, France
+//
+// ============================================================================
 package org.talend.mdm.webapp.browserecords.client.widget.SearchPanel;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
 import org.talend.mdm.webapp.base.client.model.DataTypeConstants;
 import org.talend.mdm.webapp.base.client.model.ForeignKeyBean;
 import org.talend.mdm.webapp.base.client.model.SimpleCriterion;
 import org.talend.mdm.webapp.base.client.widget.MultiLanguageField;
+import org.talend.mdm.webapp.base.shared.EntityModel;
 import org.talend.mdm.webapp.base.shared.TypeModel;
+import org.talend.mdm.webapp.browserecords.client.BrowseRecords;
+import org.talend.mdm.webapp.browserecords.client.BrowseRecordsServiceAsync;
 import org.talend.mdm.webapp.browserecords.client.resources.icon.Icons;
+import org.talend.mdm.webapp.browserecords.client.util.Locale;
 import org.talend.mdm.webapp.browserecords.client.util.StagingConstant;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.ForeignKeyField;
 import org.talend.mdm.webapp.browserecords.client.widget.ForeignKey.ReturnCriteriaFK;
@@ -27,6 +35,7 @@ import org.talend.mdm.webapp.browserecords.client.widget.inputfield.creator.Sear
 import org.talend.mdm.webapp.browserecords.shared.ViewBean;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.extjs.gxt.ui.client.Registry;
 import com.extjs.gxt.ui.client.data.BaseModel;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
@@ -70,6 +79,8 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
     private ViewBean view;
 
     private Map<String, TypeModel> itemsPredicates = new HashMap<String, TypeModel>();
+
+    private Map<String, EntityModel> referenceEntityMap = new HashMap<String, EntityModel>();
 
     private ListStore<BaseModel> list = new ListStore<BaseModel>();
 
@@ -218,10 +229,9 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
         operatorComboBox.setValue(operatorlist.getAt(0));
     }
 
-    private TypeModel adaptOperatorAndValue() {
+    private void adaptOperatorAndValue(TypeModel typeModel, EntityModel entityModel) {
         content.removeAll();
-        TypeModel typeModel = itemsPredicates.get(getKey());
-        field = SearchFieldCreator.createField(typeModel);
+        field = SearchFieldCreator.createField(typeModel, entityModel);
         if (field != null) {
             field.setId("SimpleSearchValueFiled"); //$NON-NLS-1$
             if (field instanceof ForeignKeyField) {
@@ -244,7 +254,6 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
         }
         setOperatorComboBox(SearchFieldCreator.cons);
         content.layout();
-        return typeModel;
     }
 
     public void focusField() {
@@ -308,15 +317,39 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
         }
     }
 
-    public void setCriterion(SimpleCriterion criterion) {
+    public void setCriterion(final SimpleCriterion criterion) {
         try {
-            keyComboBox.setValue(list.findModel("value", criterion.getKey())); //$NON-NLS-1$
-            TypeModel typeModel = adaptOperatorAndValue();
-            operatorComboBox.setValue(operatorlist.findModel("value", criterion.getOperator())); //$NON-NLS-1$
-            setField(criterion, typeModel);
+            final TypeModel typeModel = itemsPredicates.get(criterion.getKey());
+            boolean isForeignkey = typeModel.getForeignkey() != null;
+            if (isForeignkey) {
+                EntityModel entity = referenceEntityMap.get(getKey());
+                if (entity == null) {
+                    String foreignConceptName = typeModel.getForeignkey().split("/")[0]; //$NON-NLS-1$
+                    ((BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE)).getEntityModel(
+                            foreignConceptName, Locale.getLanguage(), new SessionAwareAsyncCallback<EntityModel>() {
+
+                                @Override
+                                public void onSuccess(EntityModel entityModel) {
+                                    referenceEntityMap.put(criterion.getKey(), entityModel);
+                                    updateOperatorAndValue(criterion, typeModel, entityModel);
+                                }
+                            });
+                } else {
+                    updateOperatorAndValue(criterion, typeModel, entity);
+                }
+            } else {
+                updateOperatorAndValue(criterion, typeModel, null);
+            }
         } catch (Exception e) {
             Log.error(e.getMessage(), e);
         }
+    }
+
+    private void updateOperatorAndValue(SimpleCriterion criterion, TypeModel typeModel, EntityModel entityModel) {
+        // adaptOperatorAndValue(typeModel, entityModel);
+        keyComboBox.setValue(list.findModel("value", criterion.getKey())); //$NON-NLS-1$
+        operatorComboBox.setValue(operatorlist.findModel("value", criterion.getOperator())); //$NON-NLS-1$
+        setField(criterion, typeModel);
     }
 
     private void setField(SimpleCriterion criterion, TypeModel typeModel) {
@@ -389,15 +422,38 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
 
             @Override
             public void selectionChanged(SelectionChangedEvent<BaseModel> se) {
-                adaptOperatorAndValue();
+                final TypeModel typeModel = itemsPredicates.get(getKey());
+                boolean isForeignkey = typeModel != null && typeModel.getForeignkey() != null;
+                if (isForeignkey) {
+                    EntityModel entity = referenceEntityMap.get(getKey());
+                    if (entity == null) {
+                        String foreignConceptName = typeModel.getForeignkey().split("/")[0]; //$NON-NLS-1$
+                        ((BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE)).getEntityModel(
+                                foreignConceptName, Locale.getLanguage(), new SessionAwareAsyncCallback<EntityModel>() {
 
-                if (simpleCriterionPanel != null) {
-                    addOperatorAndFieldListener(simpleCriterionPanel, false);
-                    simpleCriterionPanel.setKey(getKey());
+                                    @Override
+                                    public void onSuccess(EntityModel entityModel) {
+                                        referenceEntityMap.put(getKey(), entityModel);
+                                        keySelectionChanged(simpleCriterionPanel, typeModel, entityModel);
+                                    }
+                                });
+                    } else {
+                        keySelectionChanged(simpleCriterionPanel, typeModel, entity);
+                    }
+                } else {
+                    keySelectionChanged(simpleCriterionPanel, typeModel, null);
                 }
             }
-
         });
+    }
+
+    private void keySelectionChanged(final SimpleCriterionPanel<T> simpleCriterionPanel, TypeModel typeModel,
+            EntityModel entityModel) {
+        adaptOperatorAndValue(typeModel, entityModel);
+        if (simpleCriterionPanel != null) {
+            addOperatorAndFieldListener(simpleCriterionPanel, false);
+            simpleCriterionPanel.setKey(getKey());
+        }
     }
 
     private void setKey(String value) {
@@ -437,15 +493,32 @@ public class SimpleCriterionPanel<T> extends HorizontalPanel implements ReturnCr
     }
 
     public SimpleCriterionPanel<?> clonePanel() {
-        SimpleCriterionPanel<T> simpleCriterionPanel = new SimpleCriterionPanel<T>(searchBut, staging);
+        final SimpleCriterionPanel<T> simpleCriterionPanel = new SimpleCriterionPanel<T>(searchBut, staging);
         if (view != null) {
-            simpleCriterionPanel.updateFields(view);
-            simpleCriterionPanel.adaptOperatorAndValue();
+            final TypeModel typeModel = itemsPredicates.get(getKey());
+            if (typeModel.getForeignkey() != null) {
+                String foreignConceptName = typeModel.getForeignkey().split("/")[0]; //$NON-NLS-1$
+                ((BrowseRecordsServiceAsync) Registry.get(BrowseRecords.BROWSERECORDS_SERVICE)).getEntityModel(foreignConceptName,
+                        Locale.getLanguage(), new SessionAwareAsyncCallback<EntityModel>() {
+
+                            @Override
+                            public void onSuccess(EntityModel entityModel) {
+                                adaptClonePanel(simpleCriterionPanel, typeModel, entityModel);
+                            }
+                        });
+            } else {
+                adaptClonePanel(simpleCriterionPanel, typeModel, null);
+            }
         }
 
         simpleCriterionPanel.addKeyComboBoxListener(this);
         simpleCriterionPanel.setCriterion(this.getCriteria());
         simpleCriterionPanel.addOperatorAndFieldListener(this, true);
         return simpleCriterionPanel;
+    }
+
+    private void adaptClonePanel(SimpleCriterionPanel<T> simpleCriterionPanel, TypeModel typeModel, EntityModel entityModel) {
+        simpleCriterionPanel.updateFields(view);
+        simpleCriterionPanel.adaptOperatorAndValue(typeModel, entityModel);
     }
 }
