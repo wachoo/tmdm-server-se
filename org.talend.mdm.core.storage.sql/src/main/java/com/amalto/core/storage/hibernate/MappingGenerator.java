@@ -412,11 +412,8 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
         } else {
             Element columnElement = document.createElement("column"); //$NON-NLS-1$
             Attr nameAttr = document.createAttribute("name"); //$NON-NLS-1$
-            String columnName = resolver.getFkConstraintName(referenceField);
-            if (columnName.isEmpty()) {
-                columnName = resolver.getHibernateFkConstrainName(referenceField);
-            }
-            nameAttr.setValue(columnName);
+            nameAttr.setValue(resolver.get(referenceField.getReferencedField(),
+                    referenceField.getReferencedField().getContainingType().getName()));
             columnElement.getAttributes().setNamedItem(nameAttr);
             keyElement.appendChild(columnElement);
         }
