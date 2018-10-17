@@ -18,13 +18,16 @@ import com.amalto.core.objects.marshalling.MarshallingException;
 import com.amalto.core.objects.marshalling.MarshallingFactory;
 
 public class RoleMenuParameters {
+
     public String getParentID() {
         String parentID = "";
-        return parentID;}
+        return parentID;
+    }
 
     public int getPosition() {
         int position = 0;
-        return position;}
+        return position;
+    }
 
     // TODO: change this method signature to do not expose Castor Exception anymore
     public static RoleMenuParameters unmarshalMenuParameters(String parameters) throws ValidationException ,MarshalException{
@@ -34,5 +37,4 @@ public class RoleMenuParameters {
             throw new MarshalException(e);
         }
 	}
-
 }
