@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -57,6 +58,7 @@ import com.amalto.core.objects.datamodel.DataModelPOJO;
 import com.amalto.core.objects.datamodel.DataModelPOJOPK;
 import com.amalto.core.objects.marshalling.MarshallingFactory;
 import com.amalto.core.query.user.UserQueryBuilder;
+import com.amalto.core.save.MultiRecordsSaveException;
 import com.amalto.core.save.SaverSession;
 import com.amalto.core.server.MetadataRepositoryAdmin;
 import com.amalto.core.server.ServerContext;
@@ -64,6 +66,7 @@ import com.amalto.core.server.StorageAdmin;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.StorageType;
+import com.amalto.core.storage.exception.ConstraintViolationException;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordReader;
 import com.amalto.core.storage.record.XmlDOMDataRecordReader;
@@ -71,6 +74,7 @@ import com.amalto.core.util.DataModelUtil;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.LocaleUtil;
 import com.amalto.core.util.Util;
+import com.amalto.core.util.ValidateException;
 import com.amalto.core.util.XtentisException;
 
 import io.swagger.annotations.Api;
@@ -119,12 +123,10 @@ public class SystemModels {
                 map.put("dataModelId", dataModelId); //$NON-NLS-1$
                 return Response.ok(map).type(MediaType.APPLICATION_JSON_TYPE).build();
             } else {
-                return Response.status(Response.Status.NOT_FOUND).entity("Entity '" + entityName + "' doesn't exist.").build(); //$NON-NLS-1$//$NON-NLS-2$
+                return getErrorResponse(new NotFoundException(), StringUtils.EMPTY);
             }
         } catch (Exception e) {
-            String errorMsg = "Could not get entity details."; //$NON-NLS-1$
-            LOGGER.error(errorMsg, e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(errorMsg).build();
+            return getErrorResponse(e, "Could not get entity details."); //$NON-NLS-1$
         }
 
     }
@@ -132,9 +134,9 @@ public class SystemModels {
     @GET
     @Path("{model}")
     @ApiOperation("Returns the requested data model XML schema")
-    public String getSchema(@ApiParam("The model name") @PathParam("model") String modelName) {
+    public Response getSchema(@ApiParam("The model name") @PathParam("model") String modelName) {
         if (!isSystemStorageAvailable()) {
-            return StringUtils.EMPTY;
+            return getErrorResponse(new Exception(), "System storage is not Available."); //$NON-NLS-1$
         }
         UserQueryBuilder qb = from(dataModelType).where(eq(dataModelType.getField("name"), modelName)); //$NON-NLS-1$
         systemStorage.begin();
@@ -145,22 +147,25 @@ public class SystemModels {
             if (iterator.hasNext()) {
                 DataRecord model = iterator.next();
                 if (iterator.hasNext()) {
-                    throw new IllegalStateException("Found multiple data models for '" + modelName + "'."); //$NON-NLS-1$ //$NON-NLS-2$
+                    return getErrorResponse(new IllegalStateException(), "Found multiple data models for '" + modelName + "'."); //$NON-NLS-1$ //$NON-NLS-2$
                 }
                 modelContent = String.valueOf(model.get("schema")); //$NON-NLS-1$
             }
             systemStorage.commit();
-            return modelContent;
+            if (StringUtils.isEmpty(modelContent)) {
+                return getErrorResponse(new NotFoundException(), StringUtils.EMPTY);
+            }
+            return Response.ok(modelContent).build();
         } catch (Exception e) {
             systemStorage.rollback();
-            throw new RuntimeException("Could not update data model.", e); //$NON-NLS-1$
+            return getErrorResponse(e, "Could not get data model."); //$NON-NLS-1$
         }
     }
 
     @POST
     @Path("/")
     @ApiOperation("Create a new data model given its name and XSD provided as request content")
-    public void createDataModel(@ApiParam("New model name") @QueryParam("name") String modelName, InputStream dataModel) {
+    public Response createDataModel(@ApiParam("New model name") @QueryParam("name") String modelName, InputStream dataModel) {
         String user = null;
         try {
             user = LocalUser.getLocalUser().getUsername();
@@ -176,17 +181,19 @@ public class SystemModels {
             } else {
                 MDMAuditLogger.dataModelModified(user, oldDataModel, dataModelPOJO);
             }
+            return Response.ok().build();
         } catch (Exception e) {
-            RuntimeException ex = new RuntimeException("An error occurred while creating Data Model.", e); //$NON-NLS-1$
+            String errorMsg = "An error occurred while creating Data Model."; //$NON-NLS-1$
+            RuntimeException ex = new RuntimeException(errorMsg, e); // $NON-NLS-1$
             MDMAuditLogger.dataModelCreationFailed(user, modelName, ex);
-            throw ex;
+            return getErrorResponse(ex, errorMsg);
         }
     }
 
     @PUT
     @Path("{model}")
     @ApiOperation("Updates the requested model with the XSD provided as request content")
-    public void updateModel(@ApiParam("Model name") @PathParam("model") String modelName, 
+    public Response updateModel(@ApiParam("Model name") @PathParam("model") String modelName,
             @ApiParam("Update model even if HIGH or MEDIUM impacts were found") @QueryParam("force") boolean force, InputStream dataModel) {
         String user = null;
         DataModelPOJO oldDataModel = null;
@@ -203,17 +210,17 @@ public class SystemModels {
                 dataModelPOJO.setSchema(IOUtils.toString(dataModel, "UTF-8")); //$NON-NLS-1$
                 dataModelPOJO.store();
                 MDMAuditLogger.dataModelModified(user, oldDataModel, dataModelPOJO, true);
-                return;
+                return Response.ok().build();
             } catch (Exception e) {
                 RuntimeException ex = new RuntimeException("An error occurred while updating Data Model.", e); //$NON-NLS-1$
                 MDMAuditLogger.dataModelModificationFailed(user, modelName, ex);
-                throw ex;
+                return getErrorResponse(ex, "An error occurred while updating Data Model."); //$NON-NLS-1$
             }
         }
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         Storage storage = storageAdmin.get(modelName, StorageType.MASTER);
         if (storage == null) {
-            throw new IllegalArgumentException("Container '" + modelName + "' does not exist."); //$NON-NLS-1$ //$NON-NLS-2$
+            return getErrorResponse(new IllegalArgumentException(), "Container '" + modelName + "' does not exist."); //$NON-NLS-1$//$NON-NLS-2$
         }
         // Parses new data model version for comparison with existing
         MetadataRepository previousRepository = storage.getMetadataRepository();
@@ -223,7 +230,7 @@ public class SystemModels {
             content = IOUtils.toString(dataModel, "UTF-8"); //$NON-NLS-1$
             newRepository.load(new ByteArrayInputStream(content.getBytes("UTF-8"))); //$NON-NLS-1$
         } catch (IOException e) {
-            throw new RuntimeException("Could not read data model from body.", e); //$NON-NLS-1$
+            return getErrorResponse(new RuntimeException(), "Could not read data model from body."); //$NON-NLS-1$
         }
         // Ask the storage to adapt its structure following the changes
         storage.adapt(newRepository, force);
@@ -271,12 +278,13 @@ public class SystemModels {
             } catch (Exception e) {
                 systemStorage.rollback();
                 MDMAuditLogger.dataModelModificationFailed(user, modelName, e);
-                throw new RuntimeException("Could not update data model.", e); //$NON-NLS-1$
+                return getErrorResponse(new RuntimeException(), "Could not update data model."); //$NON-NLS-1$
             }
         }
         // synchronize with outer agents
         DataModelChangeNotifier dmUpdateEventNotifier = DataModelChangeNotifier.createInstance();
         dmUpdateEventNotifier.notifyChange(new DMUpdateEvent(modelName));
+        return Response.ok().build();
     }
 
 
@@ -287,15 +295,14 @@ public class SystemModels {
     @POST
     @Path("{model}")
     @ApiOperation("Get impacts of the model update with the new XSD provided as request content. Changes will not be performed !")
-    public String analyzeModelChange(@ApiParam("Model name") @PathParam("model") String modelName, 
+    public Response analyzeModelChange(@ApiParam("Model name") @PathParam("model") String modelName,
             @ApiParam("Optional language to get localized result") @QueryParam("lang") String locale, 
             InputStream dataModel) {
         DataModelPOJO dataModelPOJO;
         try {
             dataModelPOJO = DataModelPOJO.load(DataModelPOJO.class, new DataModelPOJOPK(modelName));
         } catch (XtentisException e) {
-            LOGGER.error("An error occurred while fetching Data Model.", e); //$NON-NLS-1$
-            throw new RuntimeException("An error occurred while fetching Data Model.", e); //$NON-NLS-1$
+            return getErrorResponse(new RuntimeException(), "An error occurred while fetching Data Model.");//$NON-NLS-1$
         }
         Map<ImpactAnalyzer.Impact, List<Change>> impacts;
         List<String> typeNamesToDrop = new ArrayList<String>();
@@ -308,13 +315,12 @@ public class SystemModels {
             StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
             Storage storage = storageAdmin.get(modelName, StorageType.MASTER);
             if (storage == null || dataModelPOJO == null) {
-                LOGGER.warn("Container '" + modelName + "' does not exist. Skip impact analyzing for model change."); //$NON-NLS-1$//$NON-NLS-2$
-                return StringUtils.EMPTY;
+                return getErrorResponse(new IllegalArgumentException(),
+                        "Container '" + modelName + "' does not exist. Skip impact analyzing for model change.");//$NON-NLS-1$//$NON-NLS-2$
             }
 
             if (storage.getType() == StorageType.SYSTEM) {
-                LOGGER.debug("No model update for system storage"); //$NON-NLS-1$
-                return StringUtils.EMPTY;
+                return getErrorResponse(new IllegalArgumentException(), "No model update for system storage"); //$NON-NLS-1$
             }
             // Compare new data model with existing data model
             MetadataRepository previousRepository = storage.getMetadataRepository();
@@ -370,7 +376,7 @@ public class SystemModels {
             }
             writer.writeEndElement();
         } catch (XMLStreamException e) {
-            throw new RuntimeException(e);
+            return getErrorResponse(e, e.getMessage());
         } finally {
             if (writer != null) {
                 try {
@@ -382,6 +388,26 @@ public class SystemModels {
                 }
             }
         }
-        return resultAsXml.toString();
+        return Response.ok(resultAsXml.toString()).build();
+    }
+
+    private Response getErrorResponse(Throwable e, String message) {
+        String responseMessage = message == null ? e.getMessage() : message;
+        if (e instanceof ConstraintViolationException) {
+            LOGGER.warn(responseMessage, e);
+            return Response.status(Response.Status.FORBIDDEN).entity(responseMessage).build();
+        } else if (e instanceof XMLStreamException || e instanceof IllegalArgumentException
+                || e instanceof MultiRecordsSaveException
+                || (e.getCause() != null && (e.getCause() instanceof IllegalArgumentException
+                        || e.getCause() instanceof IllegalStateException || e.getCause() instanceof ValidateException))) {
+            LOGGER.warn(responseMessage, e);
+            return Response.status(Response.Status.BAD_REQUEST).entity(responseMessage).build();
+        } else if (e instanceof NotFoundException) {
+            LOGGER.error(responseMessage, e);
+            return Response.status(Response.Status.NOT_FOUND).entity(responseMessage).build();
+        } else {
+            LOGGER.error(responseMessage, e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(responseMessage).build();
+        }
     }
 }
