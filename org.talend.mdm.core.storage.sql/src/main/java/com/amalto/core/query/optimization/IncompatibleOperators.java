@@ -35,6 +35,7 @@ public class IncompatibleOperators implements Optimizer {
         case H2:
             return null;
         case SQL_SERVER:
+        case ORACLE_18C:
         case ORACLE_10G:
         case DB2:
             // TMDM-7532: SQL Server does not like equals operator on large text values

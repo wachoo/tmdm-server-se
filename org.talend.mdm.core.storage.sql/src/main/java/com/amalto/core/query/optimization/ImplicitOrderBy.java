@@ -37,6 +37,7 @@ public class ImplicitOrderBy implements Optimizer {
         case H2:        
         case MYSQL:
         case DB2:
+        case ORACLE_18C:
         case ORACLE_10G:
         case SQL_SERVER:
         case POSTGRES:

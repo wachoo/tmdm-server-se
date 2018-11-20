@@ -747,7 +747,8 @@ public class MappingGenerator extends DefaultMetadataVisitor<Element> {
             }
         }
         // TMDM-4975: Oracle doesn't like when there are too many LONG columns.
-        if (dialect == RDBMSDataSource.DataSourceDialect.ORACLE_10G && TypeMapping.SQL_TYPE_TEXT.equals(elementTypeName)) {
+        if ((dialect == RDBMSDataSource.DataSourceDialect.ORACLE_18C || dialect == RDBMSDataSource.DataSourceDialect.ORACLE_10G) 
+                && TypeMapping.SQL_TYPE_TEXT.equals(elementTypeName)) {
             if (field.getType().getData(LongString.PREFER_LONGVARCHAR) == null && isMultiLingualOrBase64Binary == false) {
                 elementTypeName = TypeMapping.SQL_TYPE_CLOB;
             } else {// DATA_CLUSTER_POJO.X_VOCABULARY, X_TALEND_STAGING_ERROR, X_TALEND_STAGING_VALUES, and

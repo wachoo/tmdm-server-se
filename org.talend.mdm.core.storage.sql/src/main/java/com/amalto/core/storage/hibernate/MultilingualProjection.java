@@ -51,7 +51,7 @@ public class MultilingualProjection extends SimpleProjection {
 
         final String colName = criteriaQuery.getColumn(criteria, containerTable + '.' + columnName);
         
-        if (dataSourceDialect == DataSourceDialect.ORACLE_10G) {
+        if (dataSourceDialect == DataSourceDialect.ORACLE_10G || dataSourceDialect == DataSourceDialect.ORACLE_18C) {
             columnName = columnName.toUpperCase();
             containerTable = containerTable.toUpperCase();
         }
@@ -80,6 +80,7 @@ public class MultilingualProjection extends SimpleProjection {
         case POSTGRES:
             sql = "SUBSTRING(" + colName + ", '\\[" + language + ":(.*?)\\]')";
             break;
+        case ORACLE_18C:
         case ORACLE_10G:
             sql = "SUBSTR(" + colName + ", INSTR(" + colName + ", '[" + language + ":') + 4, INSTR(" + colName + ", ']', INSTR("
                     + colName + ", '[" + language + ":')) - INSTR(" + colName + ", '[" + language + ":') - 4)";

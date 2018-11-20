@@ -28,6 +28,7 @@ public class RDBMSDataSource implements DataSource {
 
     public static enum DataSourceDialect {
         H2(255, 1000, 1000),
+        ORACLE_18C(4000, 38, 37), // Number having precision p and scale s. The precision p can range from 1 to 38.The scale must be less than or equal to the precision.
         ORACLE_10G(4000, 38, 37), // Set to 4000 for 6.0+ versions (older versions will still use 255 for backward compatibility)
         MYSQL(255, 65, 30),
         POSTGRES(255, 1000, 1000),
@@ -166,6 +167,8 @@ public class RDBMSDataSource implements DataSource {
             dialect = DataSourceDialect.MYSQL;
         } else if ("H2".equalsIgnoreCase(dialectName)) { //$NON-NLS-1$
             dialect = DataSourceDialect.H2;
+        } else if ("Oracle18c".equalsIgnoreCase(dialectName)) { //$NON-NLS-1$
+            dialect = DataSourceDialect.ORACLE_18C;
         } else if ("Oracle11g".equalsIgnoreCase(dialectName)) { //$NON-NLS-1$
             dialect = DataSourceDialect.ORACLE_10G;
         } else if ("Oracle10g".equalsIgnoreCase(dialectName)) { //$NON-NLS-1$
@@ -346,6 +349,7 @@ public class RDBMSDataSource implements DataSource {
                 }
                 break;
             case H2:
+            case ORACLE_18C:
             case ORACLE_10G:
             case SQL_SERVER:
             default: // default for all databases
@@ -369,6 +373,7 @@ public class RDBMSDataSource implements DataSource {
                 // database name
                 break;
             case H2:
+            case ORACLE_18C:
             case ORACLE_10G:
             case SQL_SERVER:
             case DB2:
@@ -432,6 +437,7 @@ public class RDBMSDataSource implements DataSource {
 
     private void defineMaxNamedLength() {
         switch (getDialectName()) {
+        case ORACLE_18C:
         case ORACLE_10G:
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Oracle database table name length limit: 30."); //$NON-NLS-1$

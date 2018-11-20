@@ -98,6 +98,7 @@ class ManyFieldProjection extends SimpleProjection {
                         .append(containerIdColumn).append(") as y").append(position).append('_'); //$NON-NLS-1$
                 break;
             // Use Oracle 10g "listagg" function (no group_concat on Oracle).
+            case ORACLE_18C:
             case ORACLE_10G:
                 sqlFragment.append("(select listagg(") //$NON-NLS-1$
                         .append(collectionTable)

@@ -536,6 +536,7 @@ public class HibernateStorage implements Storage {
                         case MYSQL:
                         case POSTGRES:
                         case DB2:
+                        case ORACLE_18C:
                         case ORACLE_10G:
                         default:
                             // Nothing to do for these databases
@@ -594,6 +595,7 @@ public class HibernateStorage implements Storage {
                 }
             }
             switch (dataSource.getDialectName()) {
+            case ORACLE_18C:
             case ORACLE_10G:
                 tableResolver = new OracleStorageTableResolver(databaseIndexedFields, dataSource.getNameMaxLength());
                 break;
@@ -626,7 +628,8 @@ public class HibernateStorage implements Storage {
                 batchSize = Integer.parseInt(configuration.getProperty(Environment.STATEMENT_BATCH_SIZE));
                 // Sets default schema for Oracle
                 Properties properties = configuration.getProperties();
-                if (dataSource.getDialectName() == RDBMSDataSource.DataSourceDialect.ORACLE_10G) {
+                if (dataSource.getDialectName() == RDBMSDataSource.DataSourceDialect.ORACLE_10G ||
+                        dataSource.getDialectName() == RDBMSDataSource.DataSourceDialect.ORACLE_18C) {
                     properties.setProperty(Environment.DEFAULT_SCHEMA, dataSource.getUserName());
                 }
                 // Logs DDL *before* initialization in case initialization fails (useful for debugging).
@@ -739,6 +742,7 @@ public class HibernateStorage implements Storage {
         case SYSTEM:
             switch (dataSource.getDialectName()) {
             case DB2:
+            case ORACLE_18C:
             case ORACLE_10G: // DB2 and Oracle needs to store long string values to CLOBs.
                 return TypeMappingStrategy.SCATTERED_CLOB;
             default:
@@ -748,6 +752,7 @@ public class HibernateStorage implements Storage {
         case STAGING:
             switch (dataSource.getDialectName()) {
             case DB2:
+            case ORACLE_18C:
             case ORACLE_10G: // DB2 and Oracle needs to store long string values to CLOBs.
                 return TypeMappingStrategy.SCATTERED_CLOB;
             default:

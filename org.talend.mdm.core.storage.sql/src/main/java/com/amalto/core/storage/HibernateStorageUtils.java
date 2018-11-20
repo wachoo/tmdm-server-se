@@ -74,7 +74,7 @@ public abstract class HibernateStorageUtils {
     }
 
     public static boolean isOracle(DataSourceDialect dialect) {
-        return dialect == RDBMSDataSource.DataSourceDialect.ORACLE_10G;
+        return dialect == RDBMSDataSource.DataSourceDialect.ORACLE_10G || dialect == RDBMSDataSource.DataSourceDialect.ORACLE_18C;
     }
 
     public static boolean isSQLServer(DataSourceDialect dialect) {

@@ -43,6 +43,7 @@ public class JDBCStorageCleaner implements StorageCleaner {
                     case H2:
                         next = new H2StorageCleaner(next);
                         break;
+                    case ORACLE_18C:
                     case ORACLE_10G:
                         next = new OracleStorageCleaner(next);
                         break;

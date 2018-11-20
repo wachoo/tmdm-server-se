@@ -69,6 +69,7 @@ public class JDBCStorageInitializer implements StorageInitializer {
             case H2:
                 jdbcStorageInitializer = new H2StorageInitializer();
                 break;
+            case ORACLE_18C:
             case ORACLE_10G:
                 jdbcStorageInitializer = new OracleStorageInitializer();
                 break;
