@@ -14,6 +14,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import javax.ws.rs.NotFoundException;
+import javax.ws.rs.core.Response;
+import javax.xml.stream.XMLStreamException;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
@@ -21,7 +25,9 @@ import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
 import com.amalto.core.objects.datamodel.DataModelPOJOPK;
+import com.amalto.core.save.MultiRecordsSaveException;
 import com.amalto.core.server.MetadataRepositoryAdmin;
+import com.amalto.core.storage.exception.ConstraintViolationException;
 
 public class DataModelUtil {
 
@@ -58,5 +64,25 @@ public class DataModelUtil {
             throw new RuntimeException("Failed to get data model names.", e); //$NON-NLS-1$
         }
         return validDataModelNames;
+    }
+
+    public static Response getErrorResponse(Throwable e, String message) {
+        String responseMessage = message == null ? e.getMessage() : message;
+        if (e instanceof ConstraintViolationException) {
+            LOGGER.warn(responseMessage, e);
+            return Response.status(Response.Status.FORBIDDEN).entity(responseMessage).build();
+        } else if (e instanceof XMLStreamException || e instanceof IllegalArgumentException
+                || e instanceof MultiRecordsSaveException
+                || (e.getCause() != null && (e.getCause() instanceof IllegalArgumentException
+                        || e.getCause() instanceof IllegalStateException || e.getCause() instanceof ValidateException))) {
+            LOGGER.warn(responseMessage, e);
+            return Response.status(Response.Status.BAD_REQUEST).entity(responseMessage).build();
+        } else if (e instanceof NotFoundException) {
+            LOGGER.error(responseMessage, e);
+            return Response.status(Response.Status.NOT_FOUND).entity(responseMessage).build();
+        } else {
+            LOGGER.error(responseMessage, e);
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(responseMessage).build();
+        }
     }
 }
