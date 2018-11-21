@@ -12,7 +12,8 @@ package org.talend.mdm.query;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.query.user.Select;
 import com.amalto.core.query.user.UserQueryBuilder;
-import com.google.gson.JsonElement;
+import com.amalto.core.query.user.UserQueryHelper;
+import com.amalto.xmlserver.interfaces.WhereCondition;
 import junit.framework.TestCase;
 import org.talend.mdm.QueryParserTest;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
@@ -24,10 +25,10 @@ import static com.amalto.core.query.user.UserQueryBuilder.eq;
 /**
  * Goal of unit test is pretty simple:
  * <ul>
- *     <li>Create a {@link Expression}</li>
- *     <li>Serialize it to JSON</li>
- *     <li>Parse JSON using {@link QueryParser}</li>
- *     <li>Assert {@link Expression} parsed from JSON is equals to initial</li>
+ * <li>Create a {@link Expression}</li>
+ * <li>Serialize it to JSON</li>
+ * <li>Parse JSON using {@link QueryParser}</li>
+ * <li>Assert {@link Expression} parsed from JSON is equals to initial</li>
  * </ul>
  */
 public class UserQueryJsonSerializerTest extends TestCase {
@@ -74,6 +75,17 @@ public class UserQueryJsonSerializerTest extends TestCase {
         // when, then
         assertRoundTrip(select);
     }
+
+    public void testBuildConditionJoins() {
+        // given
+        final ComplexTypeMetadata type1 = repository.getComplexType("Type1");
+        UserQueryBuilder uq = UserQueryBuilder.from(type1);
+        uq.where(UserQueryHelper.buildCondition(uq, new WhereCondition("Type1/fk2", "JOINS", "Type2/id", "NONE"), repository));
+
+        // when, then
+        assertRoundTrip(uq.getSelect());
+    }
+
 
     private void assertRoundTrip(Select select) {
         // when

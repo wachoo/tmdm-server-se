@@ -10,15 +10,23 @@
 
 package com.amalto.core.storage.record;
 
-import java.util.*;
-
+import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.ContainedTypeFieldMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 import org.talend.mdm.commmon.metadata.ReferenceFieldMetadata;
 
-import com.amalto.core.storage.StorageMetadataUtils;
-import com.amalto.core.storage.record.metadata.DataRecordMetadata;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
+
 
 public class DataRecord {
 
@@ -86,7 +94,7 @@ public class DataRecord {
         int i = 0;
         while (tokenizer.hasMoreTokens()) {
             String currentKeyValue = tokenizer.nextToken().substring(1);
-            keyValues[i] = StorageMetadataUtils.convert(currentKeyValue, keyFields[i]);
+            keyValues[i] = MetaDataUtils.convert(currentKeyValue, keyFields[i]);
             i++;
         }
         return keyValues;
@@ -132,7 +140,7 @@ public class DataRecord {
             } else if (recordMetadata.getRecordProperties().containsKey(field.getName())) { // Try to read from metadata
                 return recordMetadata.getRecordProperties().get(field.getName());
             }
-            Iterator<FieldMetadata> path = StorageMetadataUtils.path(type, field, false).iterator();
+            Iterator<FieldMetadata> path = MetaDataUtils.path(type, field, false).iterator();
             if (!path.hasNext()) {
                 Object value = get(field.getName());
                 if (value != null) { // Support explicit projection type fields

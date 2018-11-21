@@ -58,12 +58,12 @@ import com.amalto.core.query.user.metadata.StagingSource;
 import com.amalto.core.query.user.metadata.StagingStatus;
 import com.amalto.core.query.user.metadata.TaskId;
 import com.amalto.core.query.user.metadata.Timestamp;
-import com.amalto.core.util.User;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import org.apache.commons.lang.NotImplementedException;
+import org.talend.mdm.commmon.metadata.ContainedComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.FieldMetadata;
 
 /**
@@ -93,7 +93,11 @@ public class UserQueryJsonSerializer extends VisitorAdapter<JsonElement> {
     }
 
     private static String toPath(Field field) {
-        return field.getFieldMetadata().getContainingType().getName() + '/' + field.getFieldMetadata().getName();
+        if(field.getFieldMetadata().getContainingType() instanceof ContainedComplexTypeMetadata){
+            return field.getFieldMetadata().getContainingType().getContainer().getContainingType().getName() + '/' + field.getFieldMetadata().getContainingType().getContainer().getName() + '/' + field.getFieldMetadata().getName();
+        }else{
+            return field.getFieldMetadata().getContainingType().getName() + '/' + field.getFieldMetadata().getName();
+        }
     }
 
     private static JsonElement toConstant(ConstantExpression constantExpression) {
@@ -104,6 +108,10 @@ public class UserQueryJsonSerializer extends VisitorAdapter<JsonElement> {
 
     @Override
     public JsonElement visit(Select select) {
+        // Prune all useless information before serialization
+        select = (Select) select.normalize();
+
+        // Start JSON serialization
         JsonObject selectContent = new JsonObject();
 
         // Generate from clause
