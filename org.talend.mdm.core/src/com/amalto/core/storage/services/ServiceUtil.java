@@ -7,7 +7,7 @@
  * You should have received a copy of the agreement along with this program; if not, write to Talend SA 9 rue Pages
  * 92150 Suresnes, France
  */
-package com.amalto.core.util;
+package com.amalto.core.storage.services;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,10 +28,12 @@ import com.amalto.core.objects.datamodel.DataModelPOJOPK;
 import com.amalto.core.save.MultiRecordsSaveException;
 import com.amalto.core.server.MetadataRepositoryAdmin;
 import com.amalto.core.storage.exception.ConstraintViolationException;
+import com.amalto.core.util.Util;
+import com.amalto.core.util.ValidateException;
 
-public class DataModelUtil {
+public class ServiceUtil {
 
-    private static final Logger LOGGER = Logger.getLogger(DataModelUtil.class);
+    private static final Logger LOGGER = Logger.getLogger(ServiceUtil.class);
 
     public static String getDataModelNameByEntityName(MetadataRepositoryAdmin metadataRepositoryAdmin,
             List<String> dataModelNames, String entityName) {
