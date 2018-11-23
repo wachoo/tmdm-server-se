@@ -30,6 +30,7 @@ import com.amalto.core.server.MetadataRepositoryAdmin;
 import com.amalto.core.storage.exception.ConstraintViolationException;
 import com.amalto.core.util.Util;
 import com.amalto.core.util.ValidateException;
+import com.ctc.wstx.exc.WstxUnexpectedCharException;
 
 public class ServiceUtil {
 
@@ -76,7 +77,8 @@ public class ServiceUtil {
         } else if (e instanceof XMLStreamException || e instanceof IllegalArgumentException
                 || e instanceof MultiRecordsSaveException
                 || (e.getCause() != null && (e.getCause() instanceof IllegalArgumentException
-                        || e.getCause() instanceof IllegalStateException || e.getCause() instanceof ValidateException))) {
+                        || e.getCause() instanceof IllegalStateException || e.getCause() instanceof ValidateException
+                        || e.getCause() instanceof WstxUnexpectedCharException))) {
             LOGGER.warn(responseMessage, e);
             return Response.status(Response.Status.BAD_REQUEST).entity(responseMessage).build();
         } else if (e instanceof NotFoundException) {
