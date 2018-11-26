@@ -83,7 +83,7 @@ public class ServiceUtil {
             return Response.status(Response.Status.BAD_REQUEST).entity(responseMessage).build();
         } else if (e instanceof NotFoundException) {
             LOGGER.error(responseMessage, e);
-            return Response.status(Response.Status.NOT_FOUND).entity(responseMessage).build();
+            return Response.status(Response.Status.NOT_FOUND).build();
         } else {
             LOGGER.error(responseMessage, e);
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(responseMessage).build();
