@@ -10,34 +10,6 @@
 
 package com.amalto.core.query;
 
-import static com.amalto.core.query.user.UserQueryBuilder.from;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathFactory;
-
-import org.apache.commons.io.IOUtils;
-import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.MetadataRepository;
-import org.talend.mdm.commmon.util.core.MDMXMLUtils;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-import org.xml.sax.XMLReader;
-
 import com.amalto.core.load.io.ResettableStringWriter;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.server.ServerContext;
@@ -51,12 +23,39 @@ import com.amalto.core.storage.hibernate.HibernateStorage;
 import com.amalto.core.storage.record.DataRecord;
 import com.amalto.core.storage.record.DataRecordReader;
 import com.amalto.core.storage.record.DataRecordWriter;
+import com.amalto.core.storage.record.StorageConstants;
 import com.amalto.core.storage.record.XmlDOMDataRecordReader;
 import com.amalto.core.storage.record.XmlSAXDataRecordReader;
 import com.amalto.core.storage.record.XmlStringDataRecordReader;
 import com.amalto.core.storage.record.metadata.DataRecordMetadata;
 import com.amalto.core.util.Util;
 import com.amalto.xmlserver.interfaces.XmlServerException;
+import org.apache.commons.io.IOUtils;
+import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.MetadataRepository;
+import org.talend.mdm.commmon.util.core.MDMXMLUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathFactory;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import static com.amalto.core.query.user.UserQueryBuilder.from;
 
 @SuppressWarnings("nls")
 public class DataRecordCreationTest extends StorageTestCase {
@@ -265,10 +264,10 @@ public class DataRecordCreationTest extends StorageTestCase {
         DataRecordMetadata recordMetadata = dataRecord.getRecordMetadata();
         assertEquals("1234", recordMetadata.getTaskId());
         Map<String, String> recordProperties = recordMetadata.getRecordProperties();
-        assertEquals("My Source", recordProperties.get(Storage.METADATA_STAGING_SOURCE));
-        assertEquals("My Error", recordProperties.get(Storage.METADATA_STAGING_ERROR));
-        assertEquals("999", recordProperties.get(Storage.METADATA_STAGING_STATUS));
-        assertEquals("5678", recordProperties.get(Storage.METADATA_STAGING_BLOCK_KEY));
+        assertEquals("My Source", recordProperties.get(StorageConstants.METADATA_STAGING_SOURCE));
+        assertEquals("My Error", recordProperties.get(StorageConstants.METADATA_STAGING_ERROR));
+        assertEquals("999", recordProperties.get(StorageConstants.METADATA_STAGING_STATUS));
+        assertEquals("5678", recordProperties.get(StorageConstants.METADATA_STAGING_BLOCK_KEY));
     }
 
     public void testCreationFromXMLStringWithInheritance() throws Exception {

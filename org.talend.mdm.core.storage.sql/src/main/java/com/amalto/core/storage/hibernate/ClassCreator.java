@@ -10,16 +10,26 @@
 
 package com.amalto.core.storage.hibernate;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
-
+import com.amalto.core.storage.HibernateMetadataUtils;
+import com.amalto.core.storage.record.StorageConstants;
+import javassist.CannotCompileException;
+import javassist.ClassPool;
+import javassist.CtClass;
+import javassist.CtConstructor;
+import javassist.CtField;
+import javassist.CtMethod;
+import javassist.CtNewConstructor;
+import javassist.CtNewMethod;
+import javassist.LoaderClassPath;
+import javassist.Modifier;
+import javassist.NotFoundException;
+import javassist.bytecode.AnnotationsAttribute;
+import javassist.bytecode.ClassFile;
+import javassist.bytecode.ConstPool;
+import javassist.bytecode.annotation.Annotation;
+import javassist.bytecode.annotation.AnnotationMemberValue;
+import javassist.bytecode.annotation.ClassMemberValue;
+import javassist.bytecode.annotation.EnumMemberValue;
 import org.apache.log4j.Logger;
 import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
@@ -41,27 +51,15 @@ import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
 import org.talend.mdm.commmon.metadata.TypeMetadata;
 import org.talend.mdm.commmon.metadata.Types;
 
-import com.amalto.core.storage.HibernateMetadataUtils;
-import com.amalto.core.storage.Storage;
-
-import javassist.CannotCompileException;
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtConstructor;
-import javassist.CtField;
-import javassist.CtMethod;
-import javassist.CtNewConstructor;
-import javassist.CtNewMethod;
-import javassist.LoaderClassPath;
-import javassist.Modifier;
-import javassist.NotFoundException;
-import javassist.bytecode.AnnotationsAttribute;
-import javassist.bytecode.ClassFile;
-import javassist.bytecode.ConstPool;
-import javassist.bytecode.annotation.Annotation;
-import javassist.bytecode.annotation.AnnotationMemberValue;
-import javassist.bytecode.annotation.ClassMemberValue;
-import javassist.bytecode.annotation.EnumMemberValue;
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
 
 class ClassCreator extends DefaultMetadataVisitor<Void> {
 
@@ -271,12 +269,12 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
             }
             newClass.addMethod(setFieldsMethod);
 
-            if (complexType.hasField(Storage.METADATA_TIMESTAMP)) {
+            if (complexType.hasField(StorageConstants.METADATA_TIMESTAMP)) {
                 // Get time stamp method
-                CtMethod getTimeStamp = createFixedFieldGetter(newClass, Storage.METADATA_TIMESTAMP, "timestamp"); //$NON-NLS-1$
+                CtMethod getTimeStamp = createFixedFieldGetter(newClass, StorageConstants.METADATA_TIMESTAMP, "timestamp"); //$NON-NLS-1$
                 newClass.addMethod(getTimeStamp);
                 // Set time stamp method
-                CtMethod setTimeStamp = createFixedSetter(newClass, Storage.METADATA_TIMESTAMP, "timestamp"); //$NON-NLS-1$
+                CtMethod setTimeStamp = createFixedSetter(newClass, StorageConstants.METADATA_TIMESTAMP, "timestamp"); //$NON-NLS-1$
                 newClass.addMethod(setTimeStamp);
             } else {
                 // Get time stamp method
@@ -287,18 +285,18 @@ class ClassCreator extends DefaultMetadataVisitor<Void> {
                 newClass.addMethod(setTimeStamp);
             }
 
-            if (complexType.hasField(Storage.METADATA_TASK_ID)) {
+            if (complexType.hasField(StorageConstants.METADATA_TASK_ID)) {
                 // Get task id method
                 StringBuilder getTaskIdMethodBody = new StringBuilder();
                 getTaskIdMethodBody.append("public String taskId() {"); //$NON-NLS-1$
-                getTaskIdMethodBody.append("return (String) get" + Storage.METADATA_TASK_ID + "();"); //$NON-NLS-1$ //$NON-NLS-2$
+                getTaskIdMethodBody.append("return (String) get" + StorageConstants.METADATA_TASK_ID + "();"); //$NON-NLS-1$ //$NON-NLS-2$
                 getTaskIdMethodBody.append("}"); //$NON-NLS-1$
                 CtMethod getTaskId = CtNewMethod.make(getTaskIdMethodBody.toString(), newClass);
                 newClass.addMethod(getTaskId);
                 // Set task id method
                 StringBuilder setTaskIdMethodBody = new StringBuilder();
                 setTaskIdMethodBody.append("public void taskId(String value) {"); //$NON-NLS-1$
-                setTaskIdMethodBody.append("set" + Storage.METADATA_TASK_ID + "(value);"); //$NON-NLS-1$ //$NON-NLS-2$
+                setTaskIdMethodBody.append("set" + StorageConstants.METADATA_TASK_ID + "(value);"); //$NON-NLS-1$ //$NON-NLS-2$
                 setTaskIdMethodBody.append("}"); //$NON-NLS-1$
                 CtMethod setTaskId = CtNewMethod.make(setTaskIdMethodBody.toString(), newClass);
                 newClass.addMethod(setTaskId);

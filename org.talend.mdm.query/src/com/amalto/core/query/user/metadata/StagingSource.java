@@ -10,27 +10,26 @@
 
 package com.amalto.core.query.user.metadata;
 
-import static com.amalto.core.query.user.UserQueryBuilder.alias;
-
-import org.talend.mdm.commmon.metadata.Types;
-
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.query.user.TypedExpression;
 import com.amalto.core.query.user.UserStagingQueryBuilder;
 import com.amalto.core.query.user.Visitor;
-import com.amalto.core.storage.Storage;
+import com.amalto.core.storage.record.StorageConstants;
+import org.talend.mdm.commmon.metadata.Types;
 
-public class StagingBlockKey implements MetadataField {
+import static com.amalto.core.query.user.UserQueryBuilder.alias;
 
-    public static final StagingBlockKey INSTANCE = new StagingBlockKey();
+public class StagingSource implements MetadataField {
 
-    public static final String STAGING_BLOCK_ALIAS = "staging_blockkey"; //$NON-NLS-1$
+    public static final StagingSource INSTANCE = new StagingSource();
 
-    private static final String[] STAGING_BLOCK_FIELD = new String[] { "metadata:staging_blockkey", "staging_blockkey" }; //$NON-NLS-1$ //$NON-NLS-2
+    public static final String STAGING_SOURCE_ALIAS = "staging_source"; //$NON-NLS-1$
 
-    private final PropertyReader propertyReader = new PropertyReader(Storage.METADATA_STAGING_BLOCK_KEY);
+    private static final String[] STAGING_SOURCE_FIELD = new String[] { "$staging_source$", "metadata:staging_source", "staging_source" }; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3
 
-    private StagingBlockKey() {
+    private final PropertyReader propertyReader = new PropertyReader(StorageConstants.METADATA_STAGING_SOURCE);
+
+    private StagingSource() {
     }
 
     public String getTypeName() {
@@ -52,13 +51,13 @@ public class StagingBlockKey implements MetadataField {
 
     @Override
     public String getFieldName() {
-        return STAGING_BLOCK_FIELD[0];
+        return STAGING_SOURCE_FIELD[1];
     }
 
     @Override
     public boolean matches(String path) {
-        for (String possibleStatus : STAGING_BLOCK_FIELD) {
-            if (possibleStatus.equals(path)) {
+        for (String possibleSourceId : STAGING_SOURCE_FIELD) {
+            if (possibleSourceId.equals(path)) {
                 return true;
             }
         }
@@ -77,12 +76,11 @@ public class StagingBlockKey implements MetadataField {
 
     @Override
     public TypedExpression getProjectionExpression() {
-        return alias(UserStagingQueryBuilder.status(), STAGING_BLOCK_ALIAS);
+        return alias(UserStagingQueryBuilder.source(), STAGING_SOURCE_ALIAS);
     }
 
     @Override
     public Reader getReader() {
         return propertyReader;
     }
-
 }

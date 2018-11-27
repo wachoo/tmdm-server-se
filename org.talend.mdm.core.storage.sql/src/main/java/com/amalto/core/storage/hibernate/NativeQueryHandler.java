@@ -12,7 +12,7 @@
 package com.amalto.core.storage.hibernate;
 
 import com.amalto.core.storage.CloseableIterator;
-import org.talend.mdm.commmon.metadata.*;
+import com.amalto.core.storage.record.StorageConstants;
 import com.amalto.core.query.user.NativeQuery;
 import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
@@ -24,6 +24,11 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.jdbc.Work;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadataImpl;
+import org.talend.mdm.commmon.metadata.MetadataUtils;
+import org.talend.mdm.commmon.metadata.SimpleTypeFieldMetadata;
+import org.talend.mdm.commmon.metadata.SimpleTypeMetadata;
 
 import javax.xml.XMLConstants;
 import java.io.IOException;
@@ -154,7 +159,7 @@ class NativeQueryHandler extends AbstractQueryHandler {
                 }
                 firstNextCall = false;
             }
-            ComplexTypeMetadata explicitProjectionType = new ComplexTypeMetadataImpl(StringUtils.EMPTY, Storage.PROJECTION_TYPE, false);
+            ComplexTypeMetadata explicitProjectionType = new ComplexTypeMetadataImpl(StringUtils.EMPTY, StorageConstants.PROJECTION_TYPE, false);
             DataRecord nativeResult = new DataRecord(explicitProjectionType, UnsupportedDataRecordMetadata.INSTANCE);
             Object next = iterator.next();
             if (next instanceof Object[]) {

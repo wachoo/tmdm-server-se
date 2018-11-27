@@ -15,7 +15,6 @@ import com.google.gson.JsonObject;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 
 import static com.amalto.core.query.user.UserQueryBuilder.isEmpty;
-import static com.amalto.core.query.user.UserQueryBuilder.isNull;
 
 class IsEmptyProcessor implements ConditionProcessor {
 
