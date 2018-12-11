@@ -1,0 +1,17 @@
+{
+  "select": {
+    "from": ["Type1"],
+    "fields": [
+      {
+        "alias":[
+          {
+            "name":"Type1/Features/Sizes"
+          },
+          {
+            "value":""
+          }
+        ]
+      }
+    ]
+  }
+}
