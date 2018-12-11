@@ -11,16 +11,24 @@ package org.talend.mdm.query;
 
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.query.user.Select;
+import com.amalto.core.query.user.TypedExpression;
 import com.amalto.core.query.user.UserQueryBuilder;
 import com.amalto.core.query.user.UserQueryHelper;
 import com.amalto.xmlserver.interfaces.WhereCondition;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import junit.framework.TestCase;
 import org.talend.mdm.QueryParserTest;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static com.amalto.core.query.user.UserQueryBuilder.and;
 import static com.amalto.core.query.user.UserQueryBuilder.eq;
+import static com.amalto.core.query.user.UserQueryBuilder.in;
 
 /**
  * Goal of unit test is pretty simple:
@@ -76,6 +84,18 @@ public class UserQueryJsonSerializerTest extends TestCase {
         assertRoundTrip(select);
     }
 
+    public void testUserQueryIn() {
+        List<String> ids = Arrays.asList("1", "2");
+        // given
+        final ComplexTypeMetadata type1 = repository.getComplexType("Type1");
+        final Select select = UserQueryBuilder.from(type1) //
+                .where(in(type1.getField("id"), ids))
+                .getSelect();
+
+        // when, then
+        assertRoundTrip(select);
+    }
+
     public void testBuildConditionJoins() {
         // given
         final ComplexTypeMetadata type1 = repository.getComplexType("Type1");
@@ -84,6 +104,15 @@ public class UserQueryJsonSerializerTest extends TestCase {
 
         // when, then
         assertRoundTrip(uq.getSelect());
+    }
+
+    public void testStringConstantOnAlias() {
+        JsonParser jsonParser = new JsonParser();
+        JsonObject jsonObject = jsonParser.parse("{\"alias\":[{\"name\":\"Sizes\"},{\"value\":\"\"}]}").getAsJsonObject();
+        assertNotNull(jsonObject);
+        TypedExpressionProcessor typedExpressionProcessor = Deserializer.getTypedExpression(jsonObject);
+        TypedExpression typedExpression = typedExpressionProcessor.process(jsonObject, this.repository);
+        assertNotNull(typedExpression);
     }
 
 

@@ -798,7 +798,7 @@ public class UserQueryBuilder {
         if (field instanceof ContainedTypeFieldMetadata) {
             // Selecting a field without value is equivalent to select "" (empty string) with an alias name equals to
             // selected field. (see MSQL-50)
-            typedExpression = new Alias(new StringConstant(StringUtils.EMPTY), field.getName());
+            typedExpression = new Alias(new StringConstant(StringUtils.EMPTY), field.getPath());
         } else {
             typedExpression = new Field(field);
         }
@@ -822,6 +822,33 @@ public class UserQueryBuilder {
                 }
             } else {
                 throw new IllegalArgumentException("Field '" + fieldName + "' is not supported.");
+            }
+        }
+        return this;
+    }
+
+    /**
+     * Adds a {@link TypedExpression} the query should return. If the typed expression has already been selected, an
+     * {@link Alias} is automatically created.
+     *
+     * @param expression Expression that represents a value to return in query results.
+     * @return This instance for method call chaining.
+     */
+    public UserQueryBuilder select(TypedExpression expression) {
+        Select select = expressionAsSelect();
+        List<TypedExpression> selectedFields = select.getSelectedFields();
+        if (!selectedFields.contains(expression)) {
+            if (expression instanceof Alias && ((Alias) expression).getTypedExpression() instanceof Field && ((Field)((Alias) expression).getTypedExpression()).getFieldMetadata() instanceof  ContainedTypeFieldMetadata) {
+                selectedFields.add(new Alias(new StringConstant(StringUtils.EMPTY), ((Alias) expression).getAliasName()));
+            } else {
+                selectedFields.add(expression);
+            }
+        } else {
+            if (expression instanceof Field) {
+                // TMDM-5022: Automatic alias if a field with same name was already selected.
+                selectedFields.add(alias(expression, ((Field) expression).getFieldMetadata().getName()));
+            } else {
+                throw new UnsupportedOperationException("Can't select twice a non-field expression.");
             }
         }
         return this;
@@ -1042,29 +1069,6 @@ public class UserQueryBuilder {
         if (field == null) {
             throw new IllegalArgumentException("Field cannot be null");
         }
-    }
-
-    /**
-     * Adds a {@link TypedExpression} the query should return. If the typed expression has already been selected, an
-     * {@link Alias} is automatically created.
-     *
-     * @param expression Expression that represents a value to return in query results.
-     * @return This instance for method call chaining.
-     */
-    public UserQueryBuilder select(TypedExpression expression) {
-        Select select = expressionAsSelect();
-        List<TypedExpression> selectedFields = select.getSelectedFields();
-        if (!selectedFields.contains(expression)) {
-            selectedFields.add(expression);
-        } else {
-            if (expression instanceof Field) {
-                // TMDM-5022: Automatic alias if a field with same name was already selected.
-                selectedFields.add(alias(expression, ((Field) expression).getFieldMetadata().getName()));
-            } else {
-                throw new UnsupportedOperationException("Can't select twice a non-field expression.");
-            }
-        }
-        return this;
     }
 
     public static TypedExpression alias(FieldMetadata field, String alias) {
