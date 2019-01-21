@@ -25,7 +25,8 @@ public interface RecycleBinServiceAsync {
     void removeDroppedItem(String clusterName, String modelName, String conceptName, String ids, String language,
             AsyncCallback<String> callback);
 
-    void recoverDroppedItem(String clusterName, String modelName, String conceptName, String ids, AsyncCallback<Void> callback);
+    void recoverDroppedItem(String clusterName, String modelName, String conceptName, String ids, String language,
+            AsyncCallback<Void> callback);
 
     void isEntityPhysicalDeletable(String conceptName, AsyncCallback<Boolean> callback);
 

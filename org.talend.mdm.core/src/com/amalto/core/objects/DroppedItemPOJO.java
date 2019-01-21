@@ -19,10 +19,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
-import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
@@ -30,7 +28,6 @@ import com.amalto.core.delegator.ILocalUser;
 import com.amalto.core.metadata.LongString;
 import com.amalto.core.objects.datacluster.DataClusterPOJOPK;
 import com.amalto.core.objects.marshalling.MarshallingFactory;
-import com.amalto.core.server.ServerContext;
 import com.amalto.core.server.api.XmlServer;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.Util;
@@ -262,19 +259,11 @@ public class DroppedItemPOJO implements Serializable {
                     }
                     continue;
                 }
-                // check xsd key's length
-                String uidPrefix = uidValues[0] + "." + uidValues[1] + ".";  //$NON-NLS-1$//$NON-NLS-2$
+
                 String[] idArray = Arrays.copyOfRange(uidValues, 2, uidValues.length);
-                if (!conceptMap.containsKey(uidPrefix)) {
-                    MetadataRepository repository = ServerContext.INSTANCE.get().getMetadataRepositoryAdmin().get(uidValues[0]);
-                    conceptMap.put(uidPrefix, repository.getComplexType(uidValues[1]));
-                }
-                if (conceptMap.get(uidPrefix) != null && conceptMap.get(uidPrefix).getKeyFields().size() == 1) {
-                    idArray = new String[] {StringUtils.removeStart(uid, uidPrefix)};
-                }
                 refItemPOJOPK = new ItemPOJOPK(new DataClusterPOJOPK(uidValues[0]), uidValues[1], idArray);
                 // set revision id as ""
-                DroppedItemPOJOPK droppedItemPOJOPK = new DroppedItemPOJOPK(refItemPOJOPK, "/"); //$NON-NLS-1$ //$NON-NLS-2$
+                DroppedItemPOJOPK droppedItemPOJOPK = new DroppedItemPOJOPK(refItemPOJOPK, "/"); //$NON-NLS-1$
                 if (regex != null) {
                     if (uid.matches(regex)) {
                         list.add(droppedItemPOJOPK);
@@ -368,8 +357,17 @@ public class DroppedItemPOJO implements Serializable {
         } else if (authorizeMode.equals("r")) {
             if (LocalUser.isAdminUser(user.getUsername())) {
                 authorized = true;
-            } else if (user.userItemCanRead(ItemPOJO.load(refItemPOJOPK))) {
-                authorized = true;
+            } else {
+                ItemPOJO itemPOJO;
+                try {
+                    itemPOJO = ItemPOJO.load(refItemPOJOPK);
+                } catch (Exception e) {
+                    itemPOJO = null;
+                    LOGGER.error(e);
+                }
+                if (user.userItemCanRead(itemPOJO)) {
+                    authorized = true;
+                }
             }
         }
         if (!authorized) {

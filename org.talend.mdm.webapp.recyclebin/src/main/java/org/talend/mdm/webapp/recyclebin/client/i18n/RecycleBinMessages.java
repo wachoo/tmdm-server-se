@@ -65,4 +65,6 @@ public interface RecycleBinMessages extends Messages {
     String deleteSelectedError(int count, String ids);
 
     String select_warning();
+
+    String restoreErrorMessage();
 }

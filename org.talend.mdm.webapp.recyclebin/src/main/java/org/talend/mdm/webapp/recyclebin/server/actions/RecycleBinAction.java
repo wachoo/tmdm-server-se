@@ -16,8 +16,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import com.amalto.core.server.ServerContext;
-import com.amalto.webapp.core.bean.Configuration;
 import org.apache.log4j.Logger;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.webapp.base.client.exception.ServiceException;
@@ -30,6 +28,7 @@ import org.talend.mdm.webapp.recyclebin.shared.ItemsTrashItem;
 import org.talend.mdm.webapp.recyclebin.shared.NoPermissionException;
 
 import com.amalto.core.objects.datamodel.DataModelPOJO;
+import com.amalto.core.server.ServerContext;
 import com.amalto.core.util.BeforeDeletingErrorException;
 import com.amalto.core.util.LocalUser;
 import com.amalto.core.util.LocaleUtil;
@@ -48,6 +47,7 @@ import com.amalto.core.webservice.WSItemPK;
 import com.amalto.core.webservice.WSLoadDroppedItem;
 import com.amalto.core.webservice.WSRecoverDroppedItem;
 import com.amalto.core.webservice.WSRemoveDroppedItem;
+import com.amalto.webapp.core.bean.Configuration;
 import com.amalto.webapp.core.dmagent.SchemaWebAgent;
 import com.amalto.webapp.core.util.DataModelAccessor;
 import com.amalto.webapp.core.util.Util;
@@ -174,10 +174,10 @@ public class RecycleBinAction implements RecycleBinService {
     }
 
     @Override
-    public synchronized void recoverDroppedItem(String clusterName, String modelName, String conceptName, String ids) throws ServiceException {
+    public synchronized void recoverDroppedItem(String clusterName, String modelName, String conceptName, String ids,
+            String language) throws ServiceException {
         try {
-            if (Webapp.INSTANCE.isEnterpriseVersion()
-                    && !DataModelAccessor.getInstance().checkRestoreAccess(modelName, conceptName)) {
+            if (checkNoPermission(modelName, conceptName)) {
                 throw new NoPermissionException();
             }
             WSGetBusinessConceptKey conceptKey = new WSGetBusinessConceptKey(new WSDataModelPK(modelName), conceptName);
@@ -190,7 +190,13 @@ public class RecycleBinAction implements RecycleBinService {
             Util.getPort().recoverDroppedItem(recoverDroppedItem);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            throw new ServiceException(e.getLocalizedMessage());
+            Locale locale = LocaleUtil.getLocale(language);
+            throw new ServiceException(MESSAGES.getMessage(locale, "restoreErrorMessage")); //$NON-NLS-1$
         }
+    }
+
+    protected boolean checkNoPermission(String modelName, String conceptName) {
+        return Webapp.INSTANCE.isEnterpriseVersion()
+                && !DataModelAccessor.getInstance().checkRestoreAccess(modelName, conceptName);
     }
 }

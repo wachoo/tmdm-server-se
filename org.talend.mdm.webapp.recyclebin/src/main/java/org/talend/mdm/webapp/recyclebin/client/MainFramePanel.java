@@ -523,6 +523,7 @@ public class MainFramePanel extends ContentPanel {
 
     public void restoreSelectedItem(final ItemsTrashItem r) {
         service.recoverDroppedItem(r.getDataClusterName(), r.getDataModelName(), r.getConceptName(), r.getIds(),
+                UrlUtil.getLanguage(),
                 new AsyncCallback<Void>() {
 
                     @Override
@@ -754,6 +755,7 @@ public class MainFramePanel extends ContentPanel {
 
     public void recoverDroppedItem(final ItemsTrashItem model, final Grid<ItemsTrashItem> modelGrid) {
         service.recoverDroppedItem(model.getDataClusterName(), model.getDataModelName(), model.getConceptName(), model.getIds(),
+                UrlUtil.getLanguage(),
                 new SessionAwareAsyncCallback<Void>() {
 
                     @Override
