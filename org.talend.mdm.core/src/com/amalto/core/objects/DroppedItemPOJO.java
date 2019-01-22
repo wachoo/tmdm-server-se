@@ -15,12 +15,9 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.log4j.Logger;
-import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
 
@@ -249,7 +246,6 @@ public class DroppedItemPOJO implements Serializable {
             //build PKs collection
             List<DroppedItemPOJOPK> list = new ArrayList<DroppedItemPOJOPK>();
 
-            Map<String, ComplexTypeMetadata> conceptMap = new HashMap<String, ComplexTypeMetadata>();
             for (String uid : ids) {
                 String[] uidValues = uid.split("\\."); //$NON-NLS-1$
                 ItemPOJOPK refItemPOJOPK;
