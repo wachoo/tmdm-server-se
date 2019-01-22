@@ -69,7 +69,14 @@ public class UnaryLogicOperator implements Condition {
 
                 @Override
                 public Condition visit(BinaryLogicOperator condition) {
-                    return new BinaryLogicOperator(condition.getLeft().accept(this), condition.getPredicate(), condition.getRight().accept(this));
+                    Predicate predicate = condition.getPredicate();
+                    if(condition.getPredicate() == Predicate.OR){
+                        predicate = Predicate.AND;
+                    }
+                    if(condition.getPredicate() == Predicate.AND){
+                        predicate = Predicate.OR;
+                    }
+                    return new BinaryLogicOperator(condition.getLeft().accept(this), predicate, condition.getRight().accept(this));
                 }
             });
         } else {
