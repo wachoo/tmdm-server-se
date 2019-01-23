@@ -346,21 +346,19 @@ public class DroppedItemPOJO implements Serializable {
         if (authorizeMode.equals("w")) {
             if (LocalUser.isAdminUser(user.getUsername())) {
                 authorized = true;
-            } else if (XSystemObjects.isExist(XObjectType.DATA_CLUSTER, refItemPOJOPK.getDataClusterPOJOPK().getUniqueId())
-                    || user.userItemCanWrite(ItemPOJO.load(refItemPOJOPK), refItemPOJOPK.getDataClusterPOJOPK().getUniqueId(), refItemPOJOPK.getConceptName())) {
-                authorized = true;
+            } else {
+                ItemPOJO itemPOJO = loadItemPOJO(refItemPOJOPK);
+                if (XSystemObjects.isExist(XObjectType.DATA_CLUSTER, refItemPOJOPK.getDataClusterPOJOPK().getUniqueId())
+                        || user.userItemCanWrite(itemPOJO, refItemPOJOPK.getDataClusterPOJOPK().getUniqueId(),
+                                refItemPOJOPK.getConceptName())) {
+                    authorized = true;
+                }
             }
         } else if (authorizeMode.equals("r")) {
             if (LocalUser.isAdminUser(user.getUsername())) {
                 authorized = true;
             } else {
-                ItemPOJO itemPOJO;
-                try {
-                    itemPOJO = ItemPOJO.load(refItemPOJOPK);
-                } catch (Exception e) {
-                    itemPOJO = null;
-                    LOGGER.error(e);
-                }
+                ItemPOJO itemPOJO = loadItemPOJO(refItemPOJOPK);
                 if (user.userItemCanRead(itemPOJO)) {
                     authorized = true;
                 }
@@ -373,5 +371,15 @@ public class DroppedItemPOJO implements Serializable {
             throw new XtentisException(err);
         }
         return user.getUsername();
+    }
+
+    // TMDM-12975 In order to display in recycle bin after change data model,we should return null when load item error.
+    private static ItemPOJO loadItemPOJO(ItemPOJOPK refItemPOJOPK) {
+        try {
+            return ItemPOJO.load(refItemPOJOPK);
+        } catch (Exception e) {
+            LOGGER.error(e);
+            return null;
+        }
     }
 }
