@@ -25,10 +25,10 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.lucene.document.Document;
+import org.hibernate.ObjectNotFoundException;
 import org.hibernate.search.bridge.LuceneOptions;
 import org.hibernate.search.bridge.TwoWayFieldBridge;
 
-import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.hibernate.MultiLingualIndexedBridge.MultilingualIndexHandler;
 
 /**
@@ -144,8 +144,16 @@ public class ReferenceEntityBridge implements TwoWayFieldBridge {
                 if (value == null) {
                     break;
                 }
-                IndexHandler handler = getHandler(field, value);
-                handler.handle(name, value, field, document, luceneOptions);
+                try {
+                    if (value != null && value.toString() != null) {
+                        IndexHandler handler = getHandler(field, value);
+                        handler.handle(name, value, field, document, luceneOptions);
+                    }
+                } catch (ObjectNotFoundException e) {
+                    LOGGER.debug("Filed '" + field.getName() + "' is not persistent");
+                    ((Wrapper) dataObject).set(field.getName(), null);
+                    break;
+                }
             }
         }
     }
