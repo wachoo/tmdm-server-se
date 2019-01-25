@@ -255,7 +255,6 @@ public class ItemPOJO implements Serializable {
 
     public static ItemPOJO loadItem(ItemPOJOPK itemPOJOPK) throws XtentisException {
         XmlServer server = Util.getXmlServerCtrlLocal();
-        ILocalUser user = LocalUser.getLocalUser();
         try {
             // retrieve the item
             String id = itemPOJOPK.getUniqueID();

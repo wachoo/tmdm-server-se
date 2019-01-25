@@ -174,12 +174,10 @@ public class RecycleBinAction implements RecycleBinService {
     }
 
     @Override
-    public synchronized void recoverDroppedItem(String clusterName, String modelName, String conceptName, String ids,
-            String language) throws ServiceException {
+    public synchronized void recoverDroppedItem(String clusterName, String modelName, String conceptName, String ids)
+            throws ServiceException {
         try {
-            if (checkNoPermission(modelName, conceptName)) {
-                throw new NoPermissionException();
-            }
+            checkRestoreAccess(modelName, conceptName);
             WSGetBusinessConceptKey conceptKey = new WSGetBusinessConceptKey(new WSDataModelPK(modelName), conceptName);
             WSConceptKey key = CommonUtil.getPort().getBusinessConceptKey(conceptKey);
             String[] ids1 = CommonUtil.extractIdWithDots(key.getFields(), ids);
@@ -190,13 +188,14 @@ public class RecycleBinAction implements RecycleBinService {
             Util.getPort().recoverDroppedItem(recoverDroppedItem);
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
-            Locale locale = LocaleUtil.getLocale(language);
-            throw new ServiceException(MESSAGES.getMessage(locale, "restoreErrorMessage")); //$NON-NLS-1$
+            throw new ServiceException(MESSAGES.getMessage(LocaleUtil.getLocale(), "restoreErrorMessage")); //$NON-NLS-1$
         }
     }
 
-    protected boolean checkNoPermission(String modelName, String conceptName) {
-        return Webapp.INSTANCE.isEnterpriseVersion()
-                && !DataModelAccessor.getInstance().checkRestoreAccess(modelName, conceptName);
+    protected void checkRestoreAccess(String modelName, String conceptName) {
+        if (Webapp.INSTANCE.isEnterpriseVersion()
+                && !DataModelAccessor.getInstance().checkRestoreAccess(modelName, conceptName)) {
+            throw new NoPermissionException();
+        }
     }
 }

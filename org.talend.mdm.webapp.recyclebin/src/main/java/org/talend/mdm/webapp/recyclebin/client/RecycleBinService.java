@@ -28,7 +28,7 @@ public interface RecycleBinService extends RemoteService {
     String removeDroppedItem(String clusterName, String modelName, String conceptName, String ids, String language)
             throws ServiceException;
 
-    void recoverDroppedItem(String clusterName, String modelName, String conceptName, String ids, String language)
+    void recoverDroppedItem(String clusterName, String modelName, String conceptName, String ids)
             throws ServiceException;
 
     boolean isEntityPhysicalDeletable(String conceptName) throws ServiceException;

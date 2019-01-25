@@ -183,7 +183,8 @@ public class DroppedItemPOJO implements Serializable {
         ItemPOJOPK refItemPOJOPK = droppedItemPOJOPK.getRefItemPOJOPK();
         String actionName = "recover"; //$NON-NLS-1$
         // for recover we need to be admin, or have a role of admin, or role of write on instance
-        rolesFilter(refItemPOJOPK, actionName, "w"); //$NON-NLS-1$
+        ItemPOJO itemPOJO = ItemPOJO.load(refItemPOJOPK);
+        rolesFilter(itemPOJO, refItemPOJOPK, actionName, "w"); //$NON-NLS-1$
         // get the universe and revision ID
         XmlServer server = Util.getXmlServerCtrlLocal();
         try {
@@ -287,7 +288,8 @@ public class DroppedItemPOJO implements Serializable {
         ItemPOJOPK refItemPOJOPK = droppedItemPOJOPK.getRefItemPOJOPK();
         String actionName = "load"; //$NON-NLS-1$
         //for load we need to be admin, or have a role of admin , or role of write on instance or role of read on instance
-        rolesFilter(refItemPOJOPK, actionName, "r"); //$NON-NLS-1$
+        ItemPOJO itemPOJO = getDroppedItemAndReturnNullInCaseOfAFailure(refItemPOJOPK);
+        rolesFilter(itemPOJO, refItemPOJOPK, actionName, "r"); //$NON-NLS-1$
         //get XmlServerSLWrapperLocal
         XmlServer server = Util.getXmlServerCtrlLocal();
         //load the dropped item
@@ -318,7 +320,8 @@ public class DroppedItemPOJO implements Serializable {
         ItemPOJOPK refItemPOJOPK = droppedItemPOJOPK.getRefItemPOJOPK();
         String actionName = "remove"; //$NON-NLS-1$
         //for remove we need to be admin, or have a role of admin , or role of write on instance
-        rolesFilter(refItemPOJOPK, actionName, "w");  //$NON-NLS-1$
+        ItemPOJO itemPOJO = getDroppedItemAndReturnNullInCaseOfAFailure(refItemPOJOPK);
+        rolesFilter(itemPOJO, refItemPOJOPK, actionName, "w"); //$NON-NLS-1$
         //get XmlServerSLWrapperLocal
         XmlServer server = Util.getXmlServerCtrlLocal();
         try {
@@ -339,7 +342,8 @@ public class DroppedItemPOJO implements Serializable {
         }
     }
 
-    private static String rolesFilter(ItemPOJOPK refItemPOJOPK, String actionName, String authorizeMode) throws XtentisException {
+    private static void rolesFilter(ItemPOJO itemPOJO, ItemPOJOPK refItemPOJOPK, String actionName, String authorizeMode)
+            throws XtentisException {
         boolean authorized = false;
         ILocalUser user = LocalUser.getLocalUser();
 
@@ -347,7 +351,6 @@ public class DroppedItemPOJO implements Serializable {
             if (LocalUser.isAdminUser(user.getUsername())) {
                 authorized = true;
             } else {
-                ItemPOJO itemPOJO = loadItemPOJO(refItemPOJOPK);
                 if (XSystemObjects.isExist(XObjectType.DATA_CLUSTER, refItemPOJOPK.getDataClusterPOJOPK().getUniqueId())
                         || user.userItemCanWrite(itemPOJO, refItemPOJOPK.getDataClusterPOJOPK().getUniqueId(),
                                 refItemPOJOPK.getConceptName())) {
@@ -358,9 +361,9 @@ public class DroppedItemPOJO implements Serializable {
             if (LocalUser.isAdminUser(user.getUsername())) {
                 authorized = true;
             } else {
-                ItemPOJO itemPOJO = loadItemPOJO(refItemPOJOPK);
+                // returns true if null is passed as parameter
                 if (user.userItemCanRead(itemPOJO)) {
-                    authorized = true;
+                    authorized = true; // authorises read when null
                 }
             }
         }
@@ -370,15 +373,15 @@ public class DroppedItemPOJO implements Serializable {
             LOGGER.error(err);
             throw new XtentisException(err);
         }
-        return user.getUsername();
     }
 
-    // TMDM-12975 In order to display in recycle bin after change data model,we should return null when load item error.
-    private static ItemPOJO loadItemPOJO(ItemPOJOPK refItemPOJOPK) {
+    // Returns null if it cannot be loaded (doesn't exist or is not valid).
+    private static ItemPOJO getDroppedItemAndReturnNullInCaseOfAFailure(ItemPOJOPK refItemPOJOPK) {
         try {
             return ItemPOJO.load(refItemPOJOPK);
         } catch (Exception e) {
-            LOGGER.error(e);
+            String err = "Unable to load item " + refItemPOJOPK.getUniqueID() + " from RecycleBin"; //$NON-NLS-1$ //$NON-NLS-2$
+            LOGGER.error(err);
             return null;
         }
     }
