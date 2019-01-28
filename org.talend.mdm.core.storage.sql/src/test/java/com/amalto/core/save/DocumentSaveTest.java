@@ -739,19 +739,32 @@ public class DocumentSaveTest extends TestCase {
         Element committedElement = committer.getCommittedElement();
         assertEquals("http://www.mynewsite.fr", evaluate(committedElement, "/Agency/Information/MoreInfo[1]"));
         assertEquals("", evaluate(committedElement, "/Agency/Information/MoreInfo[2]"));
+
+        MutableDocument updateReportDocument = context.getUpdateReportDocument();
+        assertNotNull(updateReportDocument);
+        Document doc = updateReportDocument.asDOM();
+        String path = (String) evaluate(doc.getDocumentElement(), "Item[1]/path");
+        String oldValue = (String) evaluate(doc.getDocumentElement(), "Item[1]/oldValue");
+        String newValue = (String) evaluate(doc.getDocumentElement(), "Item[1]/newValue");
+        assertEquals("Information/MoreInfo[1]", path);
+        assertEquals("", oldValue);
+        assertEquals("http://www.mynewsite.fr", newValue);
     }
 
-    public void testPartialUpdateWithOverwriteEqualsFalse() throws Exception {
+    public void testPartialUpdateWithOverwriteEqFalseOneToThree() throws Exception {
         final MetadataRepository repository = new MetadataRepository();
         repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
         MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
 
-        SaverSource source = new TestSaverSource(repository, true, "test1_1_original.xml", "metadata1.xsd");
+        SaverSource source = new TestSaverSource(repository, true, "test1_0_original.xml", "metadata1.xsd");
 
         SaverSession session = SaverSession.newSession(source);
         InputStream partialUpdateContent = new ByteArrayInputStream(
                 ("<Agency>\n" + "    <Id>5258f292-5670-473b-bc01-8b63434682f4</Id>\n" + "    <Information>\n"
-                        + "        <MoreInfo>http://www.mynewsite.fr</MoreInfo>\n" + "    </Information>\n" + "</Agency>\n")
+                        + "        <MoreInfo>http://www.mynewsite.fr</MoreInfo>\n"
+                        + "        <MoreInfo>http://www.mynewsite.com</MoreInfo>\n"
+                        + "        <MoreInfo>http://www.mynewsite.cn</MoreInfo>\n"
+                        + "    </Information>\n" + "</Agency>\n")
                 .getBytes("UTF-8"));
         DocumentSaverContext context = session.getContextFactory().createPartialUpdate("MDM", "DStar", "Source", partialUpdateContent, true, true, "/", "/", -1, false);
         DocumentSaver saver = context.createSaver();
@@ -762,8 +775,126 @@ public class DocumentSaveTest extends TestCase {
         assertTrue(committer.hasSaved());
         Element committedElement = committer.getCommittedElement();
         assertEquals("www.a.com", evaluate(committedElement, "/Agency/Information/MoreInfo[1]"));
+        assertEquals("http://www.mynewsite.fr", evaluate(committedElement, "/Agency/Information/MoreInfo[2]"));
+        assertEquals("http://www.mynewsite.com", evaluate(committedElement, "/Agency/Information/MoreInfo[3]"));
+        assertEquals("http://www.mynewsite.cn", evaluate(committedElement, "/Agency/Information/MoreInfo[4]"));
+
+        MutableDocument updateReportDocument = context.getUpdateReportDocument();
+        assertNotNull(updateReportDocument);
+        Document doc = updateReportDocument.asDOM();
+        String path = (String) evaluate(doc.getDocumentElement(), "Item[1]/path");
+        String oldValue = (String) evaluate(doc.getDocumentElement(), "Item[1]/oldValue");
+        String newValue = (String) evaluate(doc.getDocumentElement(), "Item[1]/newValue");
+        assertEquals("Information/MoreInfo[4]", path);
+        assertEquals("", oldValue);
+        assertEquals("http://www.mynewsite.cn", newValue);
+
+        path = (String) evaluate(doc.getDocumentElement(), "Item[2]/path");
+        oldValue = (String) evaluate(doc.getDocumentElement(), "Item[2]/oldValue");
+        newValue = (String) evaluate(doc.getDocumentElement(), "Item[2]/newValue");
+        assertEquals("Information/MoreInfo[3]", path);
+        assertEquals("", oldValue);
+        assertEquals("http://www.mynewsite.com", newValue);
+
+        path = (String) evaluate(doc.getDocumentElement(), "Item[3]/path");
+        oldValue = (String) evaluate(doc.getDocumentElement(), "Item[3]/oldValue");
+        newValue = (String) evaluate(doc.getDocumentElement(), "Item[3]/newValue");
+        assertEquals("Information/MoreInfo[2]", path);
+        assertEquals("", oldValue);
+        assertEquals("http://www.mynewsite.fr", newValue);
+    }
+
+    public void testPartialUpdateSameCountWithOverwriteFalse() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
+
+        SaverSource source = new TestSaverSource(repository, true, "test1_1_original.xml", "metadata1.xsd");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream partialUpdateContent = new ByteArrayInputStream(
+                ("<Agency>\n" + "    <Id>5258f292-5670-473b-bc01-8b63434682f4</Id>\n" + "    <Information>\n"
+                        + "        <MoreInfo>http://www.mynewsite.fr</MoreInfo>\n"
+                        + "        <MoreInfo>http://www.mynewsite.com</MoreInfo>\n"
+                        + "    </Information>\n" + "</Agency>\n")
+                .getBytes("UTF-8"));
+        DocumentSaverContext context = session.getContextFactory().createPartialUpdate("MDM", "DStar", "Source", partialUpdateContent, true, true, "/", "/", -1, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        //two to two
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        assertEquals("www.a.com", evaluate(committedElement, "/Agency/Information/MoreInfo[1]"));
         assertEquals("www.b.com", evaluate(committedElement, "/Agency/Information/MoreInfo[2]"));
         assertEquals("http://www.mynewsite.fr", evaluate(committedElement, "/Agency/Information/MoreInfo[3]"));
+        assertEquals("http://www.mynewsite.com", evaluate(committedElement, "/Agency/Information/MoreInfo[4]"));
+
+        MutableDocument updateReportDocument = context.getUpdateReportDocument();
+        assertNotNull(updateReportDocument);
+        Document doc = updateReportDocument.asDOM();
+        String path = (String) evaluate(doc.getDocumentElement(), "Item[1]/path");
+        String oldValue = (String) evaluate(doc.getDocumentElement(), "Item[1]/oldValue");
+        String newValue = (String) evaluate(doc.getDocumentElement(), "Item[1]/newValue");
+        assertEquals("Information/MoreInfo[4]", path);
+        assertEquals("", oldValue);
+        assertEquals("http://www.mynewsite.com", newValue);
+
+        path = (String) evaluate(doc.getDocumentElement(), "Item[2]/path");
+        oldValue = (String) evaluate(doc.getDocumentElement(), "Item[2]/oldValue");
+        newValue = (String) evaluate(doc.getDocumentElement(), "Item[2]/newValue");
+        assertEquals("Information/MoreInfo[3]", path);
+        assertEquals("", oldValue);
+        assertEquals("http://www.mynewsite.fr", newValue);
+    }
+
+    public void testPartialUpdateLessCountWithOverwriteFalse() throws Exception {
+        final MetadataRepository repository = new MetadataRepository();
+        repository.load(DocumentSaveTest.class.getResourceAsStream("metadata1.xsd"));
+        MockMetadataRepositoryAdmin.INSTANCE.register("DStar", repository);
+
+        SaverSource source = new TestSaverSource(repository, true, "test1_2_original.xml", "metadata1.xsd");
+
+        SaverSession session = SaverSession.newSession(source);
+        InputStream partialUpdateContent = new ByteArrayInputStream(
+                ("<Agency>\n" + "    <Id>5258f292-5670-473b-bc01-8b63434682f4</Id>\n" + "    <Information>\n"
+                        + "        <MoreInfo>http://www.mynewsite.fr</MoreInfo>\n"
+                        + "        <MoreInfo>http://www.mynewsite.com</MoreInfo>\n"
+                        + "    </Information>\n" + "</Agency>\n")
+                .getBytes("UTF-8"));
+        DocumentSaverContext context = session.getContextFactory().createPartialUpdate("MDM", "DStar", "Source", partialUpdateContent, true, true, "/", "/", -1, false);
+        DocumentSaver saver = context.createSaver();
+        saver.save(session, context);
+        MockCommitter committer = new MockCommitter();
+        session.end(committer);
+
+        //Three to One
+        assertTrue(committer.hasSaved());
+        Element committedElement = committer.getCommittedElement();
+        assertEquals("www.a.com", evaluate(committedElement, "/Agency/Information/MoreInfo[1]"));
+        assertEquals("www.b.com", evaluate(committedElement, "/Agency/Information/MoreInfo[2]"));
+        assertEquals("www.c.com", evaluate(committedElement, "/Agency/Information/MoreInfo[3]"));
+        assertEquals("http://www.mynewsite.fr", evaluate(committedElement, "/Agency/Information/MoreInfo[4]"));
+        assertEquals("http://www.mynewsite.com", evaluate(committedElement, "/Agency/Information/MoreInfo[5]"));
+
+        MutableDocument updateReportDocument = context.getUpdateReportDocument();
+        assertNotNull(updateReportDocument);
+        Document doc = updateReportDocument.asDOM();
+        String path = (String) evaluate(doc.getDocumentElement(), "Item[1]/path");
+        String oldValue = (String) evaluate(doc.getDocumentElement(), "Item[1]/oldValue");
+        String newValue = (String) evaluate(doc.getDocumentElement(), "Item[1]/newValue");
+        assertEquals("Information/MoreInfo[5]", path);
+        assertEquals("", oldValue);
+        assertEquals("http://www.mynewsite.com", newValue);
+
+        path = (String) evaluate(doc.getDocumentElement(), "Item[2]/path");
+        oldValue = (String) evaluate(doc.getDocumentElement(), "Item[2]/oldValue");
+        newValue = (String) evaluate(doc.getDocumentElement(), "Item[2]/newValue");
+        assertEquals("Information/MoreInfo[4]", path);
+        assertEquals("", oldValue);
+        assertEquals("http://www.mynewsite.fr", newValue);
     }
 
     public void testPartialUpdateWithOverwriteEqualsTrue() throws Exception {
