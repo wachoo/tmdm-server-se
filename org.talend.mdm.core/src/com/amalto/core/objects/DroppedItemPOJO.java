@@ -381,7 +381,7 @@ public class DroppedItemPOJO implements Serializable {
             return ItemPOJO.load(refItemPOJOPK);
         } catch (Exception e) {
             String err = "Unable to load item " + refItemPOJOPK.getUniqueID() + " from RecycleBin"; //$NON-NLS-1$ //$NON-NLS-2$
-            LOGGER.error(err);
+            LOGGER.error(err, e);
             return null;
         }
     }
