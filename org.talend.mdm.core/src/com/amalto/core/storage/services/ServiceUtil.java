@@ -11,6 +11,7 @@ package com.amalto.core.storage.services;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +21,7 @@ import javax.xml.stream.XMLStreamException;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.talend.mdm.commmon.metadata.ComplexTypeMetadata;
 import org.talend.mdm.commmon.metadata.MetadataRepository;
 import org.talend.mdm.commmon.util.webapp.XObjectType;
 import org.talend.mdm.commmon.util.webapp.XSystemObjects;
@@ -49,6 +51,22 @@ public class ServiceUtil {
             LOGGER.warn("Failed to get data model name by entity name.", e); //$NON-NLS-1$
         }
         return StringUtils.EMPTY;
+    }
+
+    public static List<String> getNoAccessRolesByEntity(MetadataRepositoryAdmin metadataRepositoryAdmin,
+             List<String> dataModelNames, String entityName) {
+        try {
+            for (String dataModelName : dataModelNames) {
+                MetadataRepository repository = metadataRepositoryAdmin.get(dataModelName);
+                ComplexTypeMetadata complexTypeMetadata = repository.getComplexType(entityName);
+                if (complexTypeMetadata != null) {
+                    return complexTypeMetadata.getHideUsers();
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.warn("Failed to get data model name by entity name.", e); //$NON-NLS-1$
+        }
+        return Collections.EMPTY_LIST;
     }
 
     public static List<String> getDataModelNames() {
