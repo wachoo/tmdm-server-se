@@ -3858,6 +3858,12 @@ public class DocumentSaveTest extends TestCase {
             this.schemaFileName = schemaFileName;
         }
 
+        public TestSaverSource(MetadataRepository repository, boolean exist, String originalDocumentFileName,
+                String schemaFileName, String userName) {
+            this(repository, exist, originalDocumentFileName, schemaFileName);
+            this.userName = userName;
+        }
+
         @Override
         public MutableDocument get(String dataClusterName, String dataModelName, String typeName, String[] key) {
             try {
