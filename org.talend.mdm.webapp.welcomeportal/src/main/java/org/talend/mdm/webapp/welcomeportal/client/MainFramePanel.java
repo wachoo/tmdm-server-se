@@ -23,7 +23,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.talend.mdm.webapp.base.client.SessionAwareAsyncCallback;
-import org.talend.mdm.webapp.base.client.util.UrlUtil;
 import org.talend.mdm.webapp.base.client.widget.PortletConstants;
 import org.talend.mdm.webapp.welcomeportal.client.mvc.PortalProperties;
 import org.talend.mdm.webapp.welcomeportal.client.widget.AlertPortlet;
@@ -97,6 +96,8 @@ public class MainFramePanel extends Portal {
     private List<List<Integer>> defaultLocationList;
 
     private WelcomePortalServiceAsync service = (WelcomePortalServiceAsync) Registry.get(WelcomePortal.WELCOMEPORTAL_SERVICE);
+
+    private List<String> menus = (List<String>) Registry.get(WelcomePortal.MENUS);
 
     public MainFramePanel(int colNum, PortalProperties portalConfig, boolean isEnterpriseVersion) {
         this(colNum, portalConfig, null, isEnterpriseVersion);
@@ -211,10 +212,19 @@ public class MainFramePanel extends Portal {
 
     private List<String> getDefaultPortletOrdering(boolean isEE) {
         if (isEE) {
-            return Arrays.asList(PortletConstants.START_NAME, PortletConstants.PROCESS_NAME, PortletConstants.ALERT_NAME,
-                    PortletConstants.SEARCH_NAME, PortletConstants.TASKS_NAME, PortletConstants.DATA_CHART_NAME,
-                    PortletConstants.ROUTING_EVENT_CHART_NAME, PortletConstants.JOURNAL_CHART_NAME,
-                    PortletConstants.MATCHING_CHART_NAME);
+            List<String> portletList = new ArrayList<String>();
+            portletList.add(PortletConstants.START_NAME);
+            portletList.add(PortletConstants.PROCESS_NAME);
+            portletList.add(PortletConstants.ALERT_NAME);
+            if (menus.contains(WelcomePortal.SEARCHCONTEXTAPP)) {
+                portletList.add(PortletConstants.SEARCH_NAME);
+            }
+            portletList.add(PortletConstants.TASKS_NAME);
+            portletList.add(PortletConstants.DATA_CHART_NAME);
+            portletList.add(PortletConstants.ROUTING_EVENT_CHART_NAME);
+            portletList.add(PortletConstants.JOURNAL_CHART_NAME);
+            portletList.add(PortletConstants.MATCHING_CHART_NAME);
+            return portletList;
         } else {
             return Arrays.asList(PortletConstants.START_NAME, PortletConstants.PROCESS_NAME);
         }
@@ -225,16 +235,18 @@ public class MainFramePanel extends Portal {
         Map<String, List<Integer>> locations = props.getPortletToLocations();
 
         if (locations == null) {// login: init from scratch - no data in db
-            portletToLocations = new LinkedHashMap<String, List<Integer>>();
-            BasePortlet portlet;
-            // start portlets initialization, see ContainerEvent listener
-            portlet = new StartPortlet(this);
-            portlets.add(portlet);
-            MainFramePanel.this.add(portlet);
+            initPortlets();
         } else if (userConfigs == null) {// login: init with configs in db
             portletToLocations = props.getPortletToLocations();
-            initializePortlets(portletToLocations);
-            markPortalConfigsOnUI(getConfigsForUser());
+            boolean hasSearchOnMenu = menus.contains(WelcomePortal.SEARCHCONTEXTAPP);
+            boolean hasSearchOnConfig = portletToLocations.containsKey(WelcomePortal.SEARCHCONTEXT);
+            // Reset portlets setting when search portlet changes.
+            if (hasSearchOnMenu == hasSearchOnConfig) {
+                initializePortlets(portletToLocations);
+                markPortalConfigsOnUI(getConfigsForUser());
+            } else {
+                initPortlets();
+            }
         } else {
             // switch column config
             final PortalProperties portalPropertiesCp = new PortalProperties(props);
@@ -266,6 +278,15 @@ public class MainFramePanel extends Portal {
             });
 
         }
+    }
+
+    private void initPortlets() {
+        portletToLocations = new LinkedHashMap<String, List<Integer>>();
+        BasePortlet portlet;
+        // start portlets initialization, see ContainerEvent listener
+        portlet = new StartPortlet(this);
+        portlets.add(portlet);
+        MainFramePanel.this.add(portlet);
     }
 
     private Integer getDefaultColumNum() {
@@ -747,18 +768,18 @@ public class MainFramePanel extends Portal {
     }
 
     public native void openWindow(String url)/*-{
-                                             window.open(url);
-                                             }-*/;
+        window.open(url);
+    }-*/;
 
     public native void initUI(String context, String application)/*-{
-                                                                 $wnd.setTimeout(function() {
-                                                                 $wnd.amalto[context][application].init();
-                                                                 }, 50);
-                                                                 }-*/;
+        $wnd.setTimeout(function() {
+            $wnd.amalto[context][application].init();
+        }, 50);
+    }-*/;
 
     // record available portlets in Actions panel
     private native void markPortalConfigsOnUI(String configs)/*-{
-                                                             $wnd.amalto.core.markPortlets(configs);
-                                                             }-*/;
+        $wnd.amalto.core.markPortlets(configs);
+    }-*/;
 
 }
