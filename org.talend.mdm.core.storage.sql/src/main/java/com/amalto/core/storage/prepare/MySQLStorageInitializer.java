@@ -63,7 +63,8 @@ class MySQLStorageInitializer implements StorageInitializer {
             try {
                 Statement statement = connection.createStatement();
                 try {
-                    statement.execute("CREATE DATABASE " + dataSource.getDatabaseName() + " DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;"); //$NON-NLS-1$ //$NON-NLS-2$
+                    statement.execute("CREATE DATABASE IF NOT EXISTS " + dataSource.getDatabaseName() //$NON-NLS-1$
+                    + " DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;"); //$NON-NLS-1$
                 } catch (SQLException e) {
                     // Assumes database is already created.
                     LOGGER.warn("Exception occurred during CREATE DATABASE statement.", e);
