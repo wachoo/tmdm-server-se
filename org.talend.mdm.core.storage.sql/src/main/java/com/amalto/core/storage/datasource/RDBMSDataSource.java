@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2018 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
  * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -11,6 +11,9 @@
 package com.amalto.core.storage.datasource;
 
 import java.net.URI;
+import java.sql.Connection;
+import java.sql.Driver;
+import java.sql.SQLException;
 import java.util.Map;
 import java.util.Properties;
 
@@ -410,6 +413,63 @@ public class RDBMSDataSource implements DataSource {
         properties.setProperty("user", this.getUserName()); // $NON-NLS-1
         properties.setProperty("password", this.getPassword()); // $NON-NLS-1
         return properties;
+    }
+
+    private static Driver createDriver(RDBMSDataSource dataSource) throws SQLException {
+        try {
+            return (Driver) Class.forName(dataSource.getDriverClassName()).newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException("Exception occurred during initialization of database.", e);
+        }
+    }
+
+    /**
+     * Create a JDBC Connection without assign database, need to do the following steps
+     * <pre>
+     * 1. Load the DB Connector/J into your program.
+     * 2. Create a new Connection object from the Driver class. Then you can use this Connection object to execute queries.
+     * </pre>
+     * @param dataSource
+     * @return
+     */
+    public static Connection getConnectionToInit(RDBMSDataSource dataSource) throws SQLException {
+        Driver driver = createDriver(dataSource);
+        Properties properties = new Properties();
+        properties.put("user", dataSource.getInitUserName()); //$NON-NLS-1$
+        properties.put("password", dataSource.getInitPassword()); //$NON-NLS-1$
+
+        String connectionURL = getConnectionToInitURL(dataSource);//No database specified
+        return driver.connect(connectionURL, properties);
+    }
+
+    /**
+     * Connecting to special DB Using JDBC Driver, need to do the following steps
+     * <pre>
+     * 1. Load the DB Connector/J into your program.
+     * 2. Get an existing Connection object from the Driver class. Then you can use this Connection object to execute queries.
+     * </pre>
+     * @param dataSource
+     * @return
+     */
+    public static Connection getInitedConnection(RDBMSDataSource dataSource) throws SQLException {
+        Driver driver = createDriver(dataSource);
+        Properties properties = new Properties();
+        properties.put("user", dataSource.getUserName()); //$NON-NLS-1$
+        properties.put("password", dataSource.getPassword()); //$NON-NLS-1$
+
+        String connectionURL = dataSource.getConnectionURL();
+        return driver.connect(connectionURL, properties);
+    }
+
+    private static String getConnectionToInitURL(RDBMSDataSource dataSource) {
+        RDBMSDataSource.DataSourceDialect dialect = dataSource.getDialectName();
+        String connectionURL = dataSource.getInitConnectionURL();
+        if (DataSourceDialect.POSTGRES == dialect) {
+            if (!connectionURL.endsWith("/")) { //$NON-NLS-1$
+                connectionURL += '/'; //$NON-NLS-1$
+            }
+        }
+        return connectionURL;
     }
 
     /**
