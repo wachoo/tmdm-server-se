@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2018 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
  * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -683,7 +683,7 @@ public class MetadataRepositoryTest extends TestCase {
         }
     }
 
-    //TMDM-9086 if the default value is string, number, and the fn:true(), fn:false(), filed's data contains DEFAULT_VALUE_RULE value 
+    //TMDM-9086 if the default value is string, number, and the fn:true(), fn:false(), filed's data contains DEFAULT_VALUE value
     public void test_32() throws Exception {
         MetadataRepository repository = new MetadataRepository();
         InputStream stream = getClass().getResourceAsStream("schema32.xsd");
@@ -695,11 +695,21 @@ public class MetadataRepositoryTest extends TestCase {
         assertTrue(entityType.hasField("lastname"));
         assertTrue(entityType.hasField("sex"));
 
+        assertEquals("\"Jason\"", entityType.getField("lastname").getData(MetadataRepository.DEFAULT_VALUE));
+        assertEquals("6", entityType.getField("age").getData(MetadataRepository.DEFAULT_VALUE));
+        assertEquals("12.6", entityType.getField("weight").getData(MetadataRepository.DEFAULT_VALUE));
+        assertEquals("fn:true()", entityType.getField("sex").getData(MetadataRepository.DEFAULT_VALUE));
+        assertEquals("\"true\"", entityType.getField("isGradeOne").getData(MetadataRepository.DEFAULT_VALUE));
+        assertNull(entityType.getField("name_1").getData(MetadataRepository.DEFAULT_VALUE));
+        assertNull(entityType.getField("name_2").getData(MetadataRepository.DEFAULT_VALUE));
+
         assertEquals("\"Jason\"", entityType.getField("lastname").getData(MetadataRepository.DEFAULT_VALUE_RULE));
         assertEquals("6", entityType.getField("age").getData(MetadataRepository.DEFAULT_VALUE_RULE));
         assertEquals("12.6", entityType.getField("weight").getData(MetadataRepository.DEFAULT_VALUE_RULE));
         assertEquals("fn:true()", entityType.getField("sex").getData(MetadataRepository.DEFAULT_VALUE_RULE));
-        assertEquals(null, entityType.getField("name_1").getData(MetadataRepository.DEFAULT_VALUE_RULE));
+        assertEquals("\"true\"", entityType.getField("isGradeOne").getData(MetadataRepository.DEFAULT_VALUE));
+        assertEquals("fn:name()", entityType.getField("name_1").getData(MetadataRepository.DEFAULT_VALUE_RULE));
+        assertEquals("John", entityType.getField("name_2").getData(MetadataRepository.DEFAULT_VALUE_RULE));
     }
 
     // test the min occurs and max occurs for TMDM-10534
@@ -788,5 +798,54 @@ public class MetadataRepositoryTest extends TestCase {
 
         assertEquals("X_ANONYMOUS0", entityType.getField("aa-non-anonymous/bb-anonymous").getType().getName());
         assertEquals("X_ANONYMOUS1", entityType.getField("do").getType().getName());
+    }
+
+    public void test36_RenderInMainTab() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream stream = getClass().getResourceAsStream("SortType_05.xsd");
+        repository.load(stream);
+
+        //1 set the X_ForeignKey_NotSep value
+        ComplexTypeMetadata component = repository.getComplexType("Component");
+        ReferenceFieldMetadata defaultAirbag = (ReferenceFieldMetadata) component.getField("DefaultAirbag_Fk");
+        ReferenceFieldMetadata associatedComponent = (ReferenceFieldMetadata) component.getField("AssociatedComponent_Fk");
+
+        assertTrue(defaultAirbag.isFKMainRender());
+        assertFalse(associatedComponent.isFKMainRender());
+
+        //2. no set X_ForeignKey_NotSep, default is false
+        ComplexTypeMetadata finishedProduct = repository.getComplexType("FinishedProduct");
+        ReferenceFieldMetadata compositionFk = (ReferenceFieldMetadata) finishedProduct.getField("Composition_Fk");
+
+        assertFalse(compositionFk.isFKMainRender());
+    }
+
+    public void test37_RenderInMainTabForContainerField() throws Exception {
+        MetadataRepository repository = new MetadataRepository();
+        InputStream stream = getClass().getResourceAsStream("schema37.xsd");
+        repository.load(stream);
+
+        // 1 Reference Field (not set X_ForeignKey_NotSep = false)
+        ComplexTypeMetadata product = repository.getComplexType("Product");
+        ReferenceFieldMetadata family = (ReferenceFieldMetadata) product.getField("Family");
+        assertFalse(family.isFKMainRender());
+
+        // 2. Reference in Anonymous Container field (set X_ForeignKey_NotSep = true )
+        ContainedTypeFieldMetadata storeContainer = ((ContainedTypeFieldMetadata) product.getField("Stores"));
+        ReferenceFieldMetadata storeRefer = (ReferenceFieldMetadata) storeContainer.getContainedType().getField("Store");
+        assertTrue(storeRefer.isFKMainRender());
+
+        // 3. Reference in NON-Anonymous Container field (set X_ForeignKey_NotSep = true )
+        ContainedComplexTypeMetadata bookContainer = (ContainedComplexTypeMetadata) ((ContainedTypeFieldMetadata) product
+                .getField("Book")).getContainedType().getContainer().getType();
+        ReferenceFieldMetadata bookRefer = (ReferenceFieldMetadata) bookContainer.getContainedType().getField("FamilyName");
+        assertTrue(bookRefer.isFKMainRender());
+
+        // 4. Reference in NON-Anonymous Container field (set X_ForeignKey_NotSep = false )
+        ContainedComplexTypeMetadata publishContainer = (ContainedComplexTypeMetadata) ((ContainedTypeFieldMetadata) product
+                .getField("Publish")).getContainedType().getContainer().getType();
+        ReferenceFieldMetadata publishRefer = (ReferenceFieldMetadata) publishContainer.getContainedType()
+                .getField("PublishName");
+        assertFalse(publishRefer.isFKMainRender());
     }
 }
