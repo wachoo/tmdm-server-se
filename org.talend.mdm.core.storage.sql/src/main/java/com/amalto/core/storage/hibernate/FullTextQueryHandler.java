@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2018 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
  *
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -398,6 +398,8 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                                 nextRecord.set(newField, getTypeName(next.get(fieldMetadata.getName())));
                             } else if (typedExpression instanceof MetadataField) {
                                 nextRecord.set(newField, ((MetadataField) typedExpression).getReader().readValue(next));
+                            } else if (typedExpression instanceof Count) {
+                                nextRecord.set(newField, query.getResultSize());
                             } else {
                                 throw new IllegalArgumentException("Aliased expression '" + typedExpression + "' is not supported.");
                             }
