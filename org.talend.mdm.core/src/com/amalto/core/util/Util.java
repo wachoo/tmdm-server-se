@@ -763,13 +763,11 @@ public class Util extends XmlUtil {
     }
 
     private static Element getLoginProvisioningFromDB() throws Exception {
-        ItemPOJOPK itemPk = new ItemPOJOPK(new DataClusterPOJOPK("PROVISIONING"), "ID",
-                new String[] { LocalUser.getLocalUser().getIdentity() });
-        ItemPOJO item = ItemPOJO.load(itemPk);
-        if (item == null) {
+        String userXml = LocalUser.getLocalUser().getUserXML();
+        if (StringUtils.isEmpty(userXml)) {
             return null;
         }
-        return (Element) Util.getNodeList(item.getProjection(), "//User").item(0);
+        return parse(userXml).getDocumentElement();
     }
 
     public static String getUserDataModel() throws Exception {
