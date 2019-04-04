@@ -43,7 +43,7 @@ class PostgresStorageCleaner implements StorageCleaner {
                 throw new IllegalArgumentException("Data source '" + dataSource.getName() + "' does not define initialization information.");
             }
 
-            Connection connection = RDBMSDataSource.getInitedConnection(dataSource);
+            Connection connection = RDBMSDataSource.getConnectionToInit(dataSource);
             try {
                 Statement statement = connection.createStatement();
                 try {

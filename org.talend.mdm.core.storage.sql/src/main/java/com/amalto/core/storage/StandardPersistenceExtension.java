@@ -16,7 +16,9 @@ import java.lang.reflect.Proxy;
 import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
@@ -68,7 +70,35 @@ public class StandardPersistenceExtension implements PersistenceExtension {
         Storage simpleStorage = (Storage) UpdateReportStorageProxy.newInstance(new Class[] { Storage.class }, dataSource);
         StorageInitializer initializer = new JDBCStorageInitializer();
 
-        return initializer.isInitialized(simpleStorage);
+        return initializer.isInitialized(simpleStorage) && isUpdateReportExisted(simpleStorage);
+    }
+
+    /**
+     * The method major use in Oracle DB to check if table <b>UpdateReport</b> exists or not.
+     * @param storage
+     * @return
+     */
+    private boolean isUpdateReportExisted(Storage storage) {
+        if (!HibernateStorageUtils.isOracle(dataSource.getDialectName())) {
+            return true;
+        }
+        try {
+            Class.forName(dataSource.getDriverClassName());
+            try (Connection connection = DriverManager.getConnection(dataSource.getConnectionURL(), dataSource.getUserName(),
+                    dataSource.getPassword()); Statement statement = connection.createStatement()) {
+                ResultSet resultSet = statement.executeQuery("SELECT COUNT(*) FROM user_tables WHERE table_name = 'X_UPDATE_REPORT'"); //$NON-NLS-1$
+                if (resultSet.next()) {
+                    return resultSet.getInt(1) == 1;
+                } else {
+                    return false;
+                }
+            } catch (SQLException e) {
+                LOGGER.error("Exception occurred during checking the query table exists.", e);//$NON-NLS-1$
+            }
+            return false;
+        } catch (Exception e) {
+            throw new RuntimeException("Exception occurred during processing querying of Oracle database", e);//$NON-NLS-1$
+        }
     }
 
     @Override
