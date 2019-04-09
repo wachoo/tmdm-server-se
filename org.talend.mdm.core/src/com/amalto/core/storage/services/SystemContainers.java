@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2018 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
  * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -18,6 +18,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import com.amalto.core.storage.Storage;
 import org.apache.log4j.Logger;
 
 import com.amalto.core.objects.datacluster.DataClusterPOJO;
@@ -42,10 +43,11 @@ public class SystemContainers {
 
     @POST
     @ApiOperation("Creates a new data container with the provided name")
-    public void createContainer(@ApiParam("The new container name") @QueryParam("containerName") String containerName) {
+    public Response createContainer(@ApiParam("The new container name") @QueryParam("containerName") String containerName) {
         try {
             DataClusterPOJO dataClusterPOJO = new DataClusterPOJO(containerName);
             dataClusterPOJO.store();
+            return Response.status(Response.Status.OK).build();
         } catch (XtentisException e) {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("Could not store new data container.", e); //$NON-NLS-1$
@@ -72,7 +74,12 @@ public class SystemContainers {
     @Path("{containerName}/hasStaging")
     @ApiOperation(value="Returns true of this container has a staging area, false otherwise.")
     public Response isSupportStaging(@ApiParam(value="Container name") @PathParam("containerName") String containerName) {
-        boolean output = ServerContext.INSTANCE.get().getStorageAdmin().supportStaging(containerName);
+        StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
+        Storage dataStorage = storageAdmin.get(containerName, StorageType.MASTER);
+        if (dataStorage == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+        boolean output = storageAdmin.supportStaging(containerName);
         return Response.ok(output).type(MediaType.APPLICATION_JSON_TYPE).build();
     }
     

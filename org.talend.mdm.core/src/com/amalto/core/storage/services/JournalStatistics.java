@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2018 Talend Inc. - www.talend.com
+ * Copyright (C) 2006-2019 Talend Inc. - www.talend.com
  * 
  * This source code is available under agreement available at
  * %InstallDIR%\features\org.talend.rcp.branding.%PRODUCTNAME%\%PRODUCTNAME%license.txt
@@ -97,7 +97,7 @@ public class JournalStatistics {
         StorageAdmin storageAdmin = ServerContext.INSTANCE.get().getStorageAdmin();
         Storage dataStorage = storageAdmin.get(containerName, StorageType.MASTER);
         if (dataStorage == null) {
-            throw new IllegalArgumentException("Container '" + containerName + "' does not exist.");
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
         Storage updateReportStorage = storageAdmin.get(XSystemObjects.DC_UPDATE_PREPORT.getName(), StorageType.MASTER);
         ComplexTypeMetadata updateType = updateReportStorage.getMetadataRepository().getComplexType("Update");//$NON-NLS-1$
@@ -138,7 +138,7 @@ public class JournalStatistics {
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug("Unable to compute top " + top + " types due to storage exception.", e);
                 }
-                return Response.status(Response.Status.NO_CONTENT).build();
+                throw new RuntimeException("Unable to compute top " + top + " types due to storage exception.");
             }
         }
         // Build statistics
@@ -221,7 +221,7 @@ public class JournalStatistics {
                     LOGGER.debug("Unable to compute statistics due to storage exception.", e);
                 }
             }
-            return Response.status(Response.Status.NO_CONTENT).build();
+            throw new RuntimeException("Unable to compute statistics due to storage exception.");
         }
     }
 }
