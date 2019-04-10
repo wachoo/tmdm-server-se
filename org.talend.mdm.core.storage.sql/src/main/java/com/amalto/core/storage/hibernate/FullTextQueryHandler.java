@@ -58,7 +58,9 @@ import com.amalto.core.query.user.ConstantCollection;
 import com.amalto.core.query.user.Count;
 import com.amalto.core.query.user.DateConstant;
 import com.amalto.core.query.user.DateTimeConstant;
+import com.amalto.core.query.user.Distinct;
 import com.amalto.core.query.user.DoubleConstant;
+import com.amalto.core.query.user.Expression;
 import com.amalto.core.query.user.Field;
 import com.amalto.core.query.user.FieldFullText;
 import com.amalto.core.query.user.FloatConstant;
@@ -175,13 +177,38 @@ class FullTextQueryHandler extends AbstractQueryHandler {
         for (OrderBy current : select.getOrderBy()) {
             current.accept(this);
         }
+
+        boolean isCountDistinct = false;
+        String distinctFieldName = null;
+        boolean isCount = false;
+        boolean isDistinct = false;
+        for (TypedExpression selectedField : selectedFields) {
+            if (selectedField instanceof Alias) {
+                Alias alias = (Alias) selectedField;
+                TypedExpression typedExpression = alias.getTypedExpression();
+                if (typedExpression instanceof Distinct) {
+                    isDistinct = true;
+                    Expression expression = alias.getTypedExpression();
+                    Distinct distinct = (Distinct) expression;
+                    if (distinct.getExpression() instanceof Field) {
+                        Field field = (Field) distinct.getExpression();
+                        FieldMetadata fieldMetadata = field.getFieldMetadata();
+                        distinctFieldName = fieldMetadata.getName();
+                    }
+                } else if (typedExpression instanceof Count) {
+                    isCount = true;
+                }
+            }
+        }
+        isCountDistinct = isCount && isDistinct ? true : false;
+
         // Paging
         Paging paging = select.getPaging();
         paging.accept(this);
         pageSize = paging.getLimit();
         boolean hasPaging = pageSize < Integer.MAX_VALUE;
         if (!hasPaging) {
-            return createResults(query.scroll(ScrollMode.FORWARD_ONLY));
+            return createResults(query.scroll(ScrollMode.FORWARD_ONLY), distinctFieldName, isCountDistinct);
         } else {
             return createResults(query.list());
         }
@@ -328,6 +355,7 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                 }
             };
         }
+
         return new FullTextStorageResults(pageSize, query.getResultSize(), iterator);
     }
 
@@ -342,8 +370,9 @@ class FullTextQueryHandler extends AbstractQueryHandler {
         return typeName;
     }
 
-    private StorageResults createResults(ScrollableResults scrollableResults) {
+    private StorageResults createResults(ScrollableResults scrollableResults, String distinctFieldName, boolean isCountDistinct) {
         CloseableIterator<DataRecord> iterator;
+        Set<String> dedupValueSet = new HashSet<>();
         if (selectedFields.isEmpty()) {
             iterator = new ScrollableIterator(mappings,
                     storageClassLoader,
@@ -356,7 +385,18 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                     callbacks) {
                 @Override
                 public DataRecord next() {
+                    String dedupValue = null;
                     DataRecord next = super.next();
+                    if (null != distinctFieldName) {
+                        dedupValue = (String) next.get(distinctFieldName);
+                        while (dedupValueSet.contains(dedupValue)) {
+                            if (super.hasNext()) {
+                                next = super.next();
+                                dedupValue = (String) next.get(distinctFieldName);
+                            }
+                        }
+                        dedupValueSet.add(dedupValue);
+                    }
                     ComplexTypeMetadata explicitProjectionType = new ComplexTypeMetadataImpl(StringUtils.EMPTY,
                             StorageConstants.PROJECTION_TYPE,
                             false);
@@ -398,8 +438,14 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                                 nextRecord.set(newField, getTypeName(next.get(fieldMetadata.getName())));
                             } else if (typedExpression instanceof MetadataField) {
                                 nextRecord.set(newField, ((MetadataField) typedExpression).getReader().readValue(next));
+                            } else if (typedExpression instanceof Distinct) {
+                                nextRecord.set(newField, (String) next.get(distinctFieldName));
                             } else if (typedExpression instanceof Count) {
-                                nextRecord.set(newField, query.getResultSize());
+                                if (isCountDistinct) {
+                                    nextRecord.set(newField, dedupValueSet.size());
+                                } else {
+                                    nextRecord.set(newField, query.getResultSize());
+                                }
                             } else {
                                 throw new IllegalArgumentException("Aliased expression '" + typedExpression + "' is not supported.");
                             }
@@ -424,7 +470,6 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                 }
             };
         }
-
         return new FullTextStorageResults(pageSize, query.getResultSize(), iterator);
     }
 

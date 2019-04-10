@@ -673,11 +673,12 @@ class StandardQueryHandler extends AbstractQueryHandler {
         }
         // If select is not a projection, selecting root type is enough, otherwise add projection for selected fields.
         boolean toDistinct = true;
+        String distinctFieldName = null;
+        boolean isCountQuery = false;
         if (select.isProjection()) {
             projectionList = Projections.projectionList();
             {
                 List<TypedExpression> queryFields = select.getSelectedFields();
-                boolean isCountQuery = false;
                 boolean hasGroupSize = false;
                 for (Expression selectedField : queryFields) {
                     if (selectedField instanceof GroupSize) {
@@ -691,6 +692,13 @@ class StandardQueryHandler extends AbstractQueryHandler {
                         }
                         if (alias.getTypedExpression() instanceof Distinct) {
                             toDistinct = false;
+                            Expression expression = alias.getTypedExpression();
+                            Distinct distinct = (Distinct)expression;
+                            if (distinct.getExpression() instanceof Field) {
+                                Field field = (Field) distinct.getExpression();
+                                FieldMetadata fieldMetadata = field.getFieldMetadata();
+                                distinctFieldName = fieldMetadata.getName(); 
+                            }
                         }
                     }
                 }
@@ -745,7 +753,9 @@ class StandardQueryHandler extends AbstractQueryHandler {
             current.accept(this);
         }
         if (select.isProjection()) {
-            if (select.getOrderBy().size() > 0 && toDistinct) {
+            if (isCountQuery && !toDistinct) {
+                criteria.setProjection(Projections.countDistinct(distinctFieldName));
+            } else if (select.getOrderBy().size() > 0 && toDistinct) {
                 criteria.setProjection(Projections.distinct(projectionList));
             } else {
                 criteria.setProjection(projectionList);
