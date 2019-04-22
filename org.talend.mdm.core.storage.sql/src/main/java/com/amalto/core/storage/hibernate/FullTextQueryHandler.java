@@ -22,7 +22,6 @@ import java.util.Set;
 
 import javax.xml.XMLConstants;
 
-import com.amalto.core.storage.record.StorageConstants;
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.search.Query;
@@ -92,6 +91,7 @@ import com.amalto.core.storage.Storage;
 import com.amalto.core.storage.StorageResults;
 import com.amalto.core.storage.exception.FullTextQueryCompositeKeyException;
 import com.amalto.core.storage.record.DataRecord;
+import com.amalto.core.storage.record.StorageConstants;
 import com.amalto.core.storage.record.metadata.UnsupportedDataRecordMetadata;
 
 
@@ -379,24 +379,41 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                     scrollableResults,
                     callbacks);
         } else {
+            int count = query.getResultSize();
+            if (null != distinctFieldName) {
+                count = 0;
+                iterator = new ScrollableIterator(mappings, storageClassLoader, scrollableResults, callbacks);
+                while (iterator.hasNext()) {
+                    DataRecord record = iterator.next();
+                    String value = (String) record.get(distinctFieldName);
+                    if (!dedupValueSet.contains(value)) {
+                        dedupValueSet.add(value);
+                        count++;
+                    }
+                }
+                dedupValueSet.clear();
+            }
+            final int recordCount = count;
             iterator = new ScrollableIterator(mappings,
                     storageClassLoader,
                     scrollableResults,
                     callbacks) {
                 @Override
                 public DataRecord next() {
-                    String dedupValue = null;
                     DataRecord next = super.next();
                     if (null != distinctFieldName) {
-                        dedupValue = (String) next.get(distinctFieldName);
+                        String dedupValue = (String) next.get(distinctFieldName);
                         while (dedupValueSet.contains(dedupValue)) {
                             if (super.hasNext()) {
                                 next = super.next();
                                 dedupValue = (String) next.get(distinctFieldName);
+                            } else {
+                                return null;
                             }
                         }
                         dedupValueSet.add(dedupValue);
                     }
+
                     ComplexTypeMetadata explicitProjectionType = new ComplexTypeMetadataImpl(StringUtils.EMPTY,
                             StorageConstants.PROJECTION_TYPE,
                             false);
@@ -441,11 +458,7 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                             } else if (typedExpression instanceof Distinct) {
                                 nextRecord.set(newField, (String) next.get(distinctFieldName));
                             } else if (typedExpression instanceof Count) {
-                                if (isCountDistinct) {
-                                    nextRecord.set(newField, dedupValueSet.size());
-                                } else {
-                                    nextRecord.set(newField, query.getResultSize());
-                                }
+                                nextRecord.set(newField, recordCount);
                             } else {
                                 throw new IllegalArgumentException("Aliased expression '" + typedExpression + "' is not supported.");
                             }
