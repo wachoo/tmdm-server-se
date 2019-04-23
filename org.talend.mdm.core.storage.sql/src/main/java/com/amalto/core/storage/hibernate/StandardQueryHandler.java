@@ -709,7 +709,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 if (hasGroupSize) {
                     projectionList = optimizeProjectionList(mainType, projectionList);
                 }
-                // TMDM-13303 if select more than one field,onyl choose count field.
+                // TMDM-13303 if select more than one field,only choose count field.
                 if (isCountQuery && queryFields.size() > 1) {
                     for (int i = 0; i < projectionList.getLength(); i++) {
                         Projection projection = projectionList.getProjection(i);
