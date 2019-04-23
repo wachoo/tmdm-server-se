@@ -50,6 +50,7 @@ import org.hibernate.criterion.ProjectionList;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.PropertyProjection;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.criterion.RowCountProjection;
 import org.hibernate.criterion.SQLProjection;
 import org.hibernate.internal.CriteriaImpl;
 import org.hibernate.sql.JoinType;
@@ -708,13 +709,25 @@ class StandardQueryHandler extends AbstractQueryHandler {
                 if (hasGroupSize) {
                     projectionList = optimizeProjectionList(mainType, projectionList);
                 }
+                // TMDM-13303 if select more than one field,onyl choose count field.
                 if (isCountQuery && queryFields.size() > 1) {
-                    Projection projection = projectionList.getProjection(projectionList.getLength() - 1);
-                    projectionList = Projections.projectionList();
-                    projectionList.add(projection);
-                    TypedExpression countTypedExpression = selectedFields.get(queryFields.size() - 1);
-                    selectedFields.clear();
-                    selectedFields.add(countTypedExpression);
+                    for (int i = 0; i < projectionList.getLength(); i++) {
+                        Projection projection = projectionList.getProjection(i);
+                        if (projection instanceof RowCountProjection) {
+                            projectionList = Projections.projectionList();
+                            projectionList.add(projection);
+                        }
+                    }
+                    for (int i = 0; i < queryFields.size(); i++) {
+                        TypedExpression typedExpression = selectedFields.get(i);
+                        if (typedExpression instanceof Alias) {
+                            Alias alias = (Alias) typedExpression;
+                            if (alias.getTypedExpression() instanceof Count) {
+                                selectedFields.clear();
+                                selectedFields.add(typedExpression);
+                            }
+                        }
+                    }
                 }
             }
             // for SELECT DISTINCT, ORDER BY expressions must appear in select list. Or it will throw exception in H2, postgres...
