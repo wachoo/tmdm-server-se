@@ -716,6 +716,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
                         if (projection instanceof RowCountProjection) {
                             projectionList = Projections.projectionList();
                             projectionList.add(projection);
+                            break;
                         }
                     }
                     for (int i = 0; i < queryFields.size(); i++) {
@@ -725,6 +726,7 @@ class StandardQueryHandler extends AbstractQueryHandler {
                             if (alias.getTypedExpression() instanceof Count) {
                                 selectedFields.clear();
                                 selectedFields.add(typedExpression);
+                                break;
                             }
                         }
                     }
