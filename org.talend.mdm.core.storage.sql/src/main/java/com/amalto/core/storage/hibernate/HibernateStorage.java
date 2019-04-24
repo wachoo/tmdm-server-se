@@ -839,10 +839,6 @@ public class HibernateStorage implements Storage {
         Session session = this.getCurrentSession();
         try {
             storageClassLoader.bind(Thread.currentThread());
-            if (session.isDirty()) {
-                session.flush();
-            }
-            session.clear();
             DataRecordConverter<Object> converter = new ObjectDataRecordConverter(storageClassLoader, session);
             for (DataRecord currentDataRecord : records) {
                 TypeMapping mapping = mappingRepository.getMappingFromUser(currentDataRecord.getType());
