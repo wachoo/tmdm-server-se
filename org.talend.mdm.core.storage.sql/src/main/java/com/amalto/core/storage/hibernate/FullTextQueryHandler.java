@@ -372,7 +372,7 @@ class FullTextQueryHandler extends AbstractQueryHandler {
 
     private StorageResults createResults(ScrollableResults scrollableResults, String distinctFieldName, boolean isCountDistinct) {
         CloseableIterator<DataRecord> iterator;
-        Set<String> dedupValueSet = new HashSet<>();
+        Set<Object> dedupValueSet = new HashSet<>();
         if (selectedFields.isEmpty()) {
             iterator = new ScrollableIterator(mappings,
                     storageClassLoader,
@@ -385,7 +385,7 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                 iterator = new ScrollableIterator(mappings, storageClassLoader, scrollableResults, callbacks);
                 while (iterator.hasNext()) {
                     DataRecord record = iterator.next();
-                    String value = (String) record.get(distinctFieldName);
+                    Object value = record.get(distinctFieldName);
                     if (!dedupValueSet.contains(value)) {
                         dedupValueSet.add(value);
                         count++;
@@ -402,11 +402,11 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                 public DataRecord next() {
                     DataRecord next = super.next();
                     if (null != distinctFieldName) {
-                        String dedupValue = (String) next.get(distinctFieldName);
+                        Object dedupValue = next.get(distinctFieldName);
                         while (dedupValueSet.contains(dedupValue)) {
                             if (super.hasNext()) {
                                 next = super.next();
-                                dedupValue = (String) next.get(distinctFieldName);
+                                dedupValue = next.get(distinctFieldName);
                             } else {
                                 return null;
                             }
@@ -456,7 +456,17 @@ class FullTextQueryHandler extends AbstractQueryHandler {
                             } else if (typedExpression instanceof MetadataField) {
                                 nextRecord.set(newField, ((MetadataField) typedExpression).getReader().readValue(next));
                             } else if (typedExpression instanceof Distinct) {
-                                nextRecord.set(newField, (String) next.get(distinctFieldName));
+                                TypedExpression expression = ((Distinct) typedExpression).getExpression();
+                                if (expression instanceof Field) {
+                                    FieldMetadata fieldMetadata = ((Field) expression).getFieldMetadata();
+                                    if (fieldMetadata instanceof ReferenceFieldMetadata) {
+                                        nextRecord.set(newField, getReferencedId(next, (ReferenceFieldMetadata) fieldMetadata));
+                                    } else {
+                                        nextRecord.set(newField, next.get(distinctFieldName));
+                                    }
+                                } else {
+                                    nextRecord.set(newField, next.get(distinctFieldName));
+                                }
                             } else if (typedExpression instanceof Count) {
                                 nextRecord.set(newField, recordCount);
                             } else {
