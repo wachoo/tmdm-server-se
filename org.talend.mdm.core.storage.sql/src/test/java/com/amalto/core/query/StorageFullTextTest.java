@@ -48,12 +48,9 @@ import org.talend.mdm.commmon.util.core.MDMConfiguration;
 import org.talend.mdm.query.QueryParser;
 
 import com.amalto.core.query.optimization.ConfigurableContainsOptimizer;
-import com.amalto.core.query.user.Alias;
 import com.amalto.core.query.user.BinaryLogicOperator;
 import com.amalto.core.query.user.Compare;
 import com.amalto.core.query.user.Condition;
-import com.amalto.core.query.user.Count;
-import com.amalto.core.query.user.Distinct;
 import com.amalto.core.query.user.Expression;
 import com.amalto.core.query.user.FieldFullText;
 import com.amalto.core.query.user.OrderBy;
@@ -444,6 +441,21 @@ public class StorageFullTextTest extends StorageTestCase {
         } finally {
             results.close();
         }
+
+        nameCount = 0;
+        query = "{'select': {'from': ['Product'],'fields': [{'distinct': {'field': 'Product/Family'}}], 'where': {'gt': [{'field': 'Product/Price'},{'value': '1'}]}}}";
+        parser = QueryParser.newParser(storage.getMetadataRepository());
+        expression = parser.parse(query);
+        results = storage.fetch(expression);
+        try {
+            for (DataRecord result : results) {
+                LOG.info("result = " + result);
+                nameCount++;
+            }
+            assertEquals(4, nameCount);
+        } finally {
+            results.close();
+        }
     }
 
     public void testDistinctCountSearch() throws Exception {
@@ -474,6 +486,20 @@ public class StorageFullTextTest extends StorageTestCase {
                 count = (Long) result.get("count");
             }
             assertEquals(4, count);
+        } finally {
+            results.close();
+        }
+
+        query = "{'select': {'from': ['Product'],'fields': [{'distinct': {'field': 'Product/Family'}},{'count': {}}], 'where': {'gt': [{'field': 'Product/Price'},{'value': '1'}]}}}";
+        parser = QueryParser.newParser(storage.getMetadataRepository());
+        expression = parser.parse(query);
+        results = storage.fetch(expression);
+        try {
+            for (DataRecord result : results) {
+                LOG.info("result = " + result);
+                count = (Long) result.get("count");
+            }
+            assertEquals(3, count);
         } finally {
             results.close();
         }
